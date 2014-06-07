@@ -50,17 +50,21 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
         }, false);
     }
 
-    Stream<Method> methodStream(Class<?> klass) {
+    static Stream<Method> methodStream(Class<?> klass) {
         return Stream.of(klass.getDeclaredMethods());
     }
 
-    boolean isListener(Method method) {
+    static boolean isListener(Method method) {
         Listener ann = method.getAnnotation(Listener.class);
         return ann != null && !ann.disabled();
     }
 
-    boolean isValidListener(Method method) {
-        if (method.getParameterCount() != 1) {
+    static boolean isValidListener(Method method) {
+        return method.getParameterCount() != 1;
+    }
+
+    boolean isValidListenerOrWarn(Method method) {
+        if (isValidListener(method)) {
             log.warn("method {} has an invalid signature", method);
             return false;
         }
@@ -76,9 +80,9 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
         Class<?> listenerClass = listener.getClass();
         
         return traverseInheritance(listenerClass)
-                .flatMap(this::methodStream)
-                .filter(this::isListener)
-                .filter(this::isValidListener)
+                .flatMap(StdListenerMetadataLookup::methodStream)
+                .filter(StdListenerMetadataLookup::isListener)
+                .filter(this::isValidListenerOrWarn)
                 .map(method -> new ListenerMetadata(listenerClass, method, method.getParameterTypes()[0]))
                 ;
     }
