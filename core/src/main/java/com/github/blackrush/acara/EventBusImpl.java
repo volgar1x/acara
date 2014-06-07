@@ -78,15 +78,14 @@ final class EventBusImpl implements EventBus {
                         throw ExceptionUtils.sneakyThrow(cause);
 
                     case STOP:
-                        // TODO warn
+                        logger.warn("uncaught exception", cause);
                         break loop;
 
                     case IGNORE:
-                        // TODO warn
+                        logger.warn("uncaught exception", cause);
                         break;
 
                     case NEW_EVENT:
-                        // TODO warn
                         // TODO dispatch new event
                         break;
 
