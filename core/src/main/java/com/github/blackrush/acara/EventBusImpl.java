@@ -3,6 +3,7 @@ package com.github.blackrush.acara;
 import com.github.blackrush.acara.dispatch.Dispatcher;
 import com.github.blackrush.acara.dispatch.DispatcherLookup;
 import com.github.blackrush.acara.supervisor.Supervisor;
+import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
@@ -63,7 +64,7 @@ final class EventBusImpl implements EventBus {
         return listeners.map(listener -> listener.dispatcher.dispatch(listener.instance, event));
     }
 
-    List<Object> supervise(Stream<Either<Object, Throwable>> stream) {
+    List<Object> supervise(Stream<Either<Object, Throwable>> stream, List<Throwable> toDispatch) {
         List<Either<Object, Throwable>> unsupervised = stream.collect(Collectors.toList());
         List<Object> supervised = new ArrayList<>(unsupervised.size());
 
@@ -86,7 +87,7 @@ final class EventBusImpl implements EventBus {
                         break;
 
                     case NEW_EVENT:
-                        // TODO dispatch new event
+                        toDispatch.add(cause);
                         break;
 
                     default:
@@ -115,24 +116,28 @@ final class EventBusImpl implements EventBus {
         return res;
     }
 
+    List<Object> doDispatch(Object event, Stream<Listener> listeners, boolean async) {
+        Stream<Either<Object, Throwable>> answers = dispatch(listeners, event);
+
+        List<Throwable> toDispatch = new ArrayList<>();
+        List<Object> supervised = supervise(answers, toDispatch);
+
+        if (async) toDispatch.forEach(cause -> publishAsync(new SupervisedEvent(event, cause)));
+        else       toDispatch.forEach(cause -> publishSync(new SupervisedEvent(event, cause)));
+
+        return supervised;
+    }
+
     @Override
     public Future<List<Object>> publishAsync(Object event) {
-        Class<?> eventClass = getEventClass(event);
-        Collection<Listener> listeners = this.listeners.get(eventClass);
-
-        return worker.submit(() -> {
-            Stream<Either<Object, Throwable>> answers = dispatch(listeners.stream(), event);
-            return supervise(answers);
-        });
+        Collection<Listener> listeners = this.listeners.get(getEventClass(event));
+        return worker.submit(() -> doDispatch(event, listeners.stream(), true));
     }
 
     @Override
     public List<Object> publishSync(Object event) {
-        Class<?> eventClass = getEventClass(event);
-        Collection<Listener> listeners = this.listeners.get(eventClass);
-
-        Stream<Either<Object, Throwable>> answers = dispatch(listeners.stream(), event);
-        return supervise(answers);
+        Collection<Listener> listeners = this.listeners.get(getEventClass(event));
+        return doDispatch(event, listeners.stream(), false);
     }
 
     @Override
@@ -140,7 +145,11 @@ final class EventBusImpl implements EventBus {
         if (defaultAsync) {
             return publishAsync(event);
         } else {
-            return Futures.success(publishSync(event));
+            try {
+                return Futures.success(publishSync(event));
+            } catch (Throwable cause) {
+                return Futures.failure(cause); // see SupervisorDirective.ESCALATE
+            }
         }
     }
 
