@@ -33,8 +33,8 @@ final class EventBusImpl implements EventBus {
     final Worker                 worker;
     final boolean                defaultAsync;
     final ListenerMetadataLookup metadataLookup;
-    final DispatcherLookup dispatcherLookup;
-    final Supervisor supervisor;
+    final DispatcherLookup       dispatcherLookup;
+    final Supervisor             supervisor;
 
     final Map<ListenerMetadata, Dispatcher> dispatchers     = new HashMap<>();
     final ListMultimap<Class<?>, Listener>  listeners       = Multimaps.newListMultimap(new IdentityHashMap<>(), ArrayList::new);
@@ -58,6 +58,42 @@ final class EventBusImpl implements EventBus {
 
     Stream<Either<Object, Throwable>> dispatch(Stream<Listener> listeners, Object event) {
         return listeners.map(listener -> listener.dispatcher.dispatch(listener.instance, event));
+    }
+
+    List<Object> supervise(Stream<Either<Object, Throwable>> stream) {
+        List<Either<Object, Throwable>> unsupervised = stream.collect(Collectors.toList());
+        List<Object> supervised = new ArrayList<>(unsupervised.size());
+
+        loop:
+        for (Either<Object, Throwable> e : unsupervised) {
+            if (e.isLeft()) {
+                supervised.add(e.left());
+            } else {
+                Throwable cause = e.right();
+                switch (supervisor.handle(cause)) {
+                    case ESCALATE:
+                        throw ExceptionUtils.sneakyThrow(cause);
+
+                    case STOP:
+                        // TODO warn
+                        break loop;
+
+                    case IGNORE:
+                        // TODO warn
+                        break;
+
+                    case NEW_EVENT:
+                        // TODO warn
+                        // TODO dispatch new event
+                        break;
+
+                    default:
+                        throw new Error();
+                }
+            }
+        }
+
+        return supervised;
     }
 
     List<ListenerMetadata> getListenerMetadata(Object subscriber) {
@@ -84,7 +120,7 @@ final class EventBusImpl implements EventBus {
 
         return worker.submit(() -> {
             Stream<Either<Object, Throwable>> answers = dispatch(listeners.stream(), event);
-            return answers.collect(Collectors.toList());
+            return supervise(answers);
         });
     }
 
@@ -94,7 +130,7 @@ final class EventBusImpl implements EventBus {
         Collection<Listener> listeners = this.listeners.get(eventClass);
 
         Stream<Either<Object, Throwable>> answers = dispatch(listeners.stream(), event);
-        return answers.collect(Collectors.toList());
+        return supervise(answers);
     }
 
     @Override
