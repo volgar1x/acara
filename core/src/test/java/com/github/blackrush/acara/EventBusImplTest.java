@@ -55,9 +55,7 @@ public class EventBusImplTest {
     @Test
     public void testSubscribe() throws Exception {
         // given
-        class AnotherEvent {
-
-        }
+        class AnotherEvent { }
 
         class AnotherListener {
             @Listener
