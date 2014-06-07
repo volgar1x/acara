@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertTrue;
@@ -52,6 +53,42 @@ public class EventBusImplTest {
         // then
         SomeEvent handled = listener.handled.get(Duration.ofMillis(10));
         assertTrue("handled == event", handled == event);
+    }
+
+    @Test(expected = Error.class)
+    public void testPublishAndSuperviseEscalate() throws Exception {
+        // given
+        SomeEvent event = new SomeEvent("publish-and-supervise-escalate");
+        Object listener = new Object() {
+            @Listener
+            public void listen(SomeEvent evt) {
+                throw new Error();
+            }
+        };
+
+        // when
+        eventBus.subscribe(listener).publishSync(event);
+
+        // then
+
+    }
+
+    @Test
+    public void testPublishAndSuperviseIgnore() throws Exception {
+        // given
+        SomeEvent event = new SomeEvent("publish-and-supervise-escalate");
+        Object listener = new Object() {
+            @Listener
+            public void listen(SomeEvent evt) {
+                throw new NullPointerException();
+            }
+        };
+
+        // when
+        List<Object> answers = eventBus.subscribe(listener).publishSync(event);
+
+        // then
+        assertTrue("answers.isEmpty()", answers.isEmpty());
     }
 
     @Test
