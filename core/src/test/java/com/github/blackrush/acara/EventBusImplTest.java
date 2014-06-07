@@ -55,13 +55,31 @@ public class EventBusImplTest {
     @Test
     public void testSubscribe() throws Exception {
         // given
-        SomeListener listener = new SomeListener();
+        class AnotherEvent {
+
+        }
+
+        class AnotherListener {
+            @Listener
+            public void listen(SomeEvent evt) {}
+
+            @Listener
+            public void listen(AnotherEvent evt) {}
+        }
+
+        SomeListener listener1 = new SomeListener();
+        SomeListener listener2 = new SomeListener();
+        SomeListener listener3 = new SomeListener();
+        AnotherListener listener4 = new AnotherListener();
 
         // when
-        eventBus.subscribe(listener);
+        eventBus.subscribe(listener1);
+        eventBus.subscribe(listener2);
+        eventBus.subscribe(listener3);
+        eventBus.subscribe(listener4);
 
         // then
-        assertTrue("eventBus.listeners is not empty", !eventBus.listeners.isEmpty());
+        assertTrue("eventBus.listeners size equal to 3", eventBus.listeners.size() == 5);
     }
 
     @Test
