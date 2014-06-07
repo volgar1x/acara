@@ -2,6 +2,9 @@ package com.github.blackrush.acara;
 
 import com.github.blackrush.acara.supervisor.Supervisor;
 import com.github.blackrush.acara.supervisor.SupervisorDirective;
+import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
+import org.fungsi.concurrent.Promise;
+import org.fungsi.concurrent.Promises;
 import org.fungsi.concurrent.Workers;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +83,7 @@ public class EventBusImplTest {
     @Test
     public void testPublishAndSuperviseIgnore() throws Exception {
         // given
-        SomeEvent event = new SomeEvent("publish-and-supervise-escalate");
+        SomeEvent event = new SomeEvent("publish-and-supervise-ignore");
         ThrowingListener listener = new ThrowingListener();
 
         // when
@@ -89,6 +92,46 @@ public class EventBusImplTest {
 
         // then
         assertTrue("answers.isEmpty()", answers.isEmpty());
+    }
+
+    @Test
+    public void testPublishAndSuperviseStop() throws Exception {
+        // given
+        SomeEvent event = new SomeEvent("publish-and-supervise-stop");
+        ThrowingListener listener1 = new ThrowingListener();
+        SomeListener listener2 = new SomeListener();
+
+        // when
+        when(supervisor.handle(any(Error.class))).thenReturn(SupervisorDirective.STOP);
+        List<Object> answers = eventBus.subscribe(listener1).subscribe(listener2).publishSync(event);
+
+        // then
+        assertTrue("answers.isEmpty()", answers.isEmpty());
+    }
+
+    @Test
+    public void testPublishAndSuperviseNewEvent() throws Exception {
+        // given
+        class HandleSupervisedEventListener {
+            Promise<SupervisedEvent> handled = Promises.create();
+
+            @Listener
+            public void supervisedEvent(SupervisedEvent evt) {
+                handled.complete(evt);
+            }
+        }
+
+        SomeEvent event = new SomeEvent("publish-and-supervise-new-event");
+        ThrowingListener listener1 = new ThrowingListener();
+        HandleSupervisedEventListener listener2 = new HandleSupervisedEventListener();
+
+        // when
+        when(supervisor.handle(any(Error.class))).thenReturn(SupervisorDirective.NEW_EVENT);
+        List<Object> answers = eventBus.subscribe(listener1).subscribe(listener2).publishSync(event);
+
+        // then
+        assertTrue("answers.isEmpty()", answers.isEmpty());
+        assertTrue("supervised event's initial event is the given event", listener2.handled.get(Duration.ofMillis(5)).getInitialEvent() == event);
     }
 
     @Test
