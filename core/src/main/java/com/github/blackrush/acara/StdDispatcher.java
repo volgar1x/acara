@@ -29,7 +29,13 @@ public class StdDispatcher implements Dispatcher {
      * @param metadata a non-null {@link com.github.blackrush.acara.ListenerMetadata} used to dispatch events
      */
     public StdDispatcher(ListenerMetadata metadata) {
-        this.metadata = requireNonNull(metadata, "metadata");
+        requireNonNull(metadata, "metadata");
+
+        if (!StdListenerMetadataLookup.isValidListener(metadata.getListenerMethod())) {
+            throw new IllegalStateException(metadata.getListenerMethod() + " is not a valid listener");
+        }
+
+        this.metadata = metadata;
     }
 
     /**
