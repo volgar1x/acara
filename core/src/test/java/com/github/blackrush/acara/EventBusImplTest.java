@@ -3,6 +3,7 @@ package com.github.blackrush.acara;
 import org.fungsi.concurrent.Workers;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.concurrent.Executors;
@@ -20,7 +21,8 @@ public class EventBusImplTest {
                 false,
                 StdListenerMetadataLookup.SHARED,
                 StdDispatcher.LOOKUP,
-                StdSupervisor.SHARED
+                StdSupervisor.SHARED,
+                LoggerFactory.getLogger(EventBusImpl.class)
         );
     }
 
