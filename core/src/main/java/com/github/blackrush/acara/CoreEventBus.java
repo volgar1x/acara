@@ -65,16 +65,13 @@ public final class CoreEventBus {
     /**
      * {@link com.github.blackrush.acara.CoreEventBus.Builder} fluently builds {@link com.github.blackrush.acara.EventBus}.
      *
-     * <p>
-     *     Properties :
-     *     <ul>
-     *         <li><em>worker</em> <strong>required</strong></li>
-     *         <li><em>defaultAsync</em> default to {@code true}</li>
-     *         <li><em>metadataLookup</em> default to {@code StdListenerMetadataLookup.SHARED}</li>
-     *         <li><em>dispatcherLookup</em> default to {@code StdDispatcher.LOOKUP}</li>
-     *         <li><em>supervisor</em> default to {@code StdSupervisor.SHARED}</li>
-     *     </ul>
-     * </p>
+     *     <table summary="Properties">
+     *         <tr><td>worker</td><td><strong>required</strong></td></tr>
+     *         <tr><td>defaultAsync</td><td>default to {@code true}</td></tr>
+     *         <tr><td>metadataLookup</td><td>default to {@code StdListenerMetadataLookup.SHARED}</td></tr>
+     *         <tr><td>dispatcherLookup</td><td>default to {@code StdDispatcher.LOOKUP}</td></tr>
+     *         <tr><td>supervisor</td><td>default to {@code StdSupervisor.SHARED}</td></tr>
+     *     </table>
      */
     public static class Builder {
         private Worker worker;

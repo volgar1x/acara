@@ -16,7 +16,7 @@ public interface Subscribable {
     /**
      * Unsubscribe a listener.
      * @param listener a non-null listener
-     * @return {@value true} if the listener has been successfully unsubscribed
+     * @return {@literal true} if the listener has been successfully unsubscribed
      */
     boolean unsubscribe(Object listener);
 }
