@@ -47,7 +47,7 @@ public class EventBusImplTest {
         eventBus.subscribe(listener).publishAsync(event);
 
         // then
-        SomeEvent handled = listener.handled.get(Duration.ofMillis(1));
+        SomeEvent handled = listener.handled.get(Duration.ofMillis(10));
         assertTrue("handled == event", handled == event);
     }
 
