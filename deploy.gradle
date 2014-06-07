@@ -121,6 +121,6 @@ githubPages {
     repoUri = 'git@github.com:Blackrush/acara.git'
     pages {
         from(project('api').javadoc.outputs.files)
-        from(project('network').javadoc.outputs.files)
+        from(project('core').javadoc.outputs.files)
     }
 }

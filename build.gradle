@@ -6,7 +6,7 @@ allprojects {
 		}
 	}
 
-    version = '1.0'
+    version = '1.0-SNAPSHOT'
     group = 'com.github.blackrush.acara'
 }
 
@@ -36,3 +36,4 @@ task wrapper(type: Wrapper) {
     gradleVersion = '1.10'
 }
 
+apply from: 'deploy.gradle'
