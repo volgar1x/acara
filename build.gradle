@@ -22,30 +22,13 @@ subprojects {
         maven { url 'https://raw.github.com/Blackrush/fungsi/maven-repo' }
     }
 
-    configurations {
-        provided
-    }
-
     dependencies {
         compile 'com.google.guava:guava:17.0'
         compile 'org.fungsi:fungsi-core:1.0-SNAPSHOT'
+        compile 'org.slf4j:slf4j-api:1.7.7'
         testCompile 'junit:junit:4.11'
         testCompile 'org.mockito:mockito-core:1.9.5'
-        testCompile 'org.slf4j:slf4j-api:1.7.7'
         testRuntime 'ch.qos.logback:logback-classic:1.1.2'
-
-        provided 'org.projectlombok:lombok:1.14.0'
-    }
-
-    sourceSets {
-        main { compileClasspath += configurations.provided }
-        test { compileClasspath += configurations.provided }
-    }
-
-    idea {
-        module {
-            scopes.PROVIDED.plus += configurations.provided
-        }
     }
 }
 
