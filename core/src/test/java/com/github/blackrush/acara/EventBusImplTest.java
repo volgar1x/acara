@@ -1,5 +1,6 @@
 package com.github.blackrush.acara;
 
+import com.github.blackrush.acara.supervisor.Supervisor;
 import org.fungsi.concurrent.Workers;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,19 +11,22 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class EventBusImplTest {
 
     private EventBusImpl eventBus;
+    private Supervisor supervisor;
 
     @Before
     public void setUp() throws Exception {
+        supervisor = mock(Supervisor.class);
         eventBus = new EventBusImpl(
                 Workers.wrap(Executors.newSingleThreadExecutor()),
                 false,
                 StdListenerMetadataLookup.SHARED,
                 StdDispatcher.LOOKUP,
-                StdSupervisor.SHARED,
+                supervisor,
                 LoggerFactory.getLogger(EventBusImpl.class)
         );
     }
