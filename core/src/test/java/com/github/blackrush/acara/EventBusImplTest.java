@@ -1,6 +1,7 @@
 package com.github.blackrush.acara;
 
 import com.github.blackrush.acara.supervisor.Supervisor;
+import com.github.blackrush.acara.supervisor.SupervisorDirective;
 import org.fungsi.concurrent.Workers;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +12,9 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class EventBusImplTest {
 
@@ -63,14 +66,11 @@ public class EventBusImplTest {
     public void testPublishAndSuperviseEscalate() throws Exception {
         // given
         SomeEvent event = new SomeEvent("publish-and-supervise-escalate");
-        Object listener = new Object() {
-            @Listener
-            public void listen(SomeEvent evt) {
-                throw new Error();
-            }
-        };
+        ThrowingListener listener = new ThrowingListener();
 
         // when
+        when(supervisor.handle(any(Error.class))).thenReturn(SupervisorDirective.ESCALATE);
+
         eventBus.subscribe(listener).publishSync(event);
 
         // then
@@ -81,14 +81,10 @@ public class EventBusImplTest {
     public void testPublishAndSuperviseIgnore() throws Exception {
         // given
         SomeEvent event = new SomeEvent("publish-and-supervise-escalate");
-        Object listener = new Object() {
-            @Listener
-            public void listen(SomeEvent evt) {
-                throw new NullPointerException();
-            }
-        };
+        ThrowingListener listener = new ThrowingListener();
 
         // when
+        when(supervisor.handle(any(Error.class))).thenReturn(SupervisorDirective.IGNORE);
         List<Object> answers = eventBus.subscribe(listener).publishSync(event);
 
         // then
