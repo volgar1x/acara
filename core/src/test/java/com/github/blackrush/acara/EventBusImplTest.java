@@ -65,6 +65,25 @@ public class EventBusImplTest {
         assertTrue("handled == event", handled == event);
     }
 
+    @Test
+    public void testPublishAndAnswer() throws Exception {
+        // given
+        SomeEvent event = new SomeEvent("publish-sync");
+        Object listener = new Object() {
+            @Listener
+            public String listen(SomeEvent evt) {
+                return evt.someValue;
+            }
+        };
+
+        // when
+        List<Object> answers = eventBus.subscribe(listener).publishSync(event);
+
+        // then
+        assertTrue("answers.size() == 1", answers.size() == 1);
+        assertTrue("answers.get(0).equals(event.someValue)", answers.get(0).equals(event.someValue));
+    }
+
     @Test(expected = Error.class)
     public void testPublishAndSuperviseEscalate() throws Exception {
         // given
