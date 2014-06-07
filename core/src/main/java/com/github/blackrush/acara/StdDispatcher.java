@@ -7,18 +7,34 @@ import org.fungsi.Either;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
+import static java.util.Objects.requireNonNull;
 import static org.fungsi.Either.failure;
 import static org.fungsi.Either.success;
 
+/**
+ * {@inheritDoc}
+ * {@link com.github.blackrush.acara.StdDispatcher} works great for {@link com.github.blackrush.acara.Listener} listeners.
+ * @see com.github.blackrush.acara.Listener
+ */
 public class StdDispatcher implements Dispatcher {
+    /**
+     * A shareable {@link com.github.blackrush.acara.dispatch.DispatcherLookup} returning every time a new instance of {@link com.github.blackrush.acara.StdDispatcher}
+     */
     public static final DispatcherLookup LOOKUP = metadata -> Optional.of(new StdDispatcher(metadata));
 
     final ListenerMetadata metadata;
 
+    /**
+     * Default constructor.
+     * @param metadata a non-null {@link com.github.blackrush.acara.ListenerMetadata} used to dispatch events
+     */
     public StdDispatcher(ListenerMetadata metadata) {
-        this.metadata = metadata;
+        this.metadata = requireNonNull(metadata, "metadata");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Either<Object, Throwable> dispatch(Object listener, Object event) {
         try {

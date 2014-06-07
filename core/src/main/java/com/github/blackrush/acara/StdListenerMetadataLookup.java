@@ -9,12 +9,24 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * {@inheritDoc}
+ * Only lookup for {@link com.github.blackrush.acara.Listener} listeners.
+ * @see com.github.blackrush.acara.Listener
+ */
 public class StdListenerMetadataLookup implements ListenerMetadataLookup {
+    /**
+     * A shareable {@link com.github.blackrush.acara.StdListenerMetadataLookup} instance
+     */
     public static final StdListenerMetadataLookup SHARED = new StdListenerMetadataLookup(
             LoggerFactory.getLogger(StdListenerMetadataLookup.class));
 
     private final Logger log;
 
+    /**
+     * Default constructor.
+     * @param log a non-null {@link org.slf4j.Logger} used to warn in case of invalid {@link com.github.blackrush.acara.Listener}
+     */
     public StdListenerMetadataLookup(Logger log) {
         this.log = log;
     }
@@ -56,6 +68,9 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Stream<ListenerMetadata> lookup(Object listener) {
         Class<?> listenerClass = listener.getClass();
