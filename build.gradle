@@ -5,6 +5,9 @@ allprojects {
 			mavenLocal()
 		}
 	}
+
+    version = '1.0'
+    group = 'com.github.blackrush.acara'
 }
 
 subprojects {
@@ -12,8 +15,6 @@ subprojects {
     apply plugin: 'idea'
 
     sourceCompatibility = 1.8
-    version = '1.0'
-    group = 'com.github.blackrush.acara'
 
     repositories {
         mavenCentral()
