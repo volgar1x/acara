@@ -19,12 +19,12 @@ subprojects {
     repositories {
         mavenCentral()
         mavenLocal()
-        maven { url 'https://raw.github.com/Blackrush/fungsi/maven-repo' }
+        maven { url 'http://dl.bintray.com/blackrush/maven' }
     }
 
     dependencies {
         compile 'com.google.guava:guava:17.0'
-        compile 'org.fungsi:fungsi-core:1.0-SNAPSHOT'
+        compile 'org.fungsi:fungsi-core:1.0'
         compile 'org.slf4j:slf4j-api:1.7.7'
         testCompile 'junit:junit:4.11'
         testCompile 'org.mockito:mockito-core:1.9.5'
