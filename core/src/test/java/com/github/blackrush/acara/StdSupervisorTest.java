@@ -4,7 +4,10 @@ import com.github.blackrush.acara.supervisor.SupervisorDirective;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static com.github.blackrush.acara.supervisor.SupervisorDirective.ESCALATE;
+import static com.github.blackrush.acara.supervisor.SupervisorDirective.IGNORE;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class StdSupervisorTest {
 
@@ -25,7 +28,7 @@ public class StdSupervisorTest {
         SupervisorDirective res = supervisor.handle(error);
 
         // then
-        assertTrue("supervisor result is IGNORE", res == SupervisorDirective.ESCALATE);
+        assertThat("supervisor result", res, is(ESCALATE));
     }
 
     @Test
@@ -37,6 +40,6 @@ public class StdSupervisorTest {
         SupervisorDirective res = supervisor.handle(npe);
 
         // then
-        assertTrue("supervisor result is IGNORE", res == SupervisorDirective.IGNORE);
+        assertThat("supervisor result", res, is(IGNORE));
     }
 }

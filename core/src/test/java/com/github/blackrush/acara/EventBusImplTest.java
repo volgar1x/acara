@@ -10,10 +10,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import static java.time.Duration.ofMillis;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -48,8 +50,8 @@ public class EventBusImplTest {
         eventBus.subscribe(listener).publishAsync(event);
 
         // then
-        SomeEvent handled = listener.handled.get(Duration.ofMillis(10));
-        assertTrue("handled == event", handled == event);
+        SomeEvent handled = listener.handled.get(ofMillis(10));
+        assertThat("handled event", handled, equalTo(event));
     }
 
     @Test
@@ -62,8 +64,8 @@ public class EventBusImplTest {
         eventBus.subscribe(listener).publishSync(event);
 
         // then
-        SomeEvent handled = listener.handled.get(Duration.ofMillis(10));
-        assertTrue("handled == event", handled == event);
+        SomeEvent handled = listener.handled.get(ofMillis(10));
+        assertThat("handled event", handled, equalTo(event));
     }
 
     @Test
@@ -81,8 +83,8 @@ public class EventBusImplTest {
         List<Object> answers = eventBus.subscribe(listener).publishSync(event);
 
         // then
-        assertTrue("answers.size() == 1", answers.size() == 1);
-        assertTrue("answers.get(0).equals(event.someValue)", answers.get(0).equals(event.someValue));
+        assertThat("answers size", answers.size(), equalTo(1));
+        assertThat("first answer", answers.get(0), equalTo(event.someValue));
     }
 
     @Test(expected = Error.class)
@@ -111,7 +113,7 @@ public class EventBusImplTest {
         List<Object> answers = eventBus.subscribe(listener).publishSync(event);
 
         // then
-        assertTrue("answers.isEmpty()", answers.isEmpty());
+        assertTrue("answers list is empty", answers.isEmpty());
     }
 
     @Test
@@ -126,7 +128,7 @@ public class EventBusImplTest {
         List<Object> answers = eventBus.subscribe(listener1).subscribe(listener2).publishSync(event);
 
         // then
-        assertTrue("answers.isEmpty()", answers.isEmpty());
+        assertTrue("answers list is empty", answers.isEmpty());
     }
 
     @Test
@@ -150,8 +152,8 @@ public class EventBusImplTest {
         List<Object> answers = eventBus.subscribe(listener1).subscribe(listener2).publishSync(event);
 
         // then
-        assertTrue("answers.isEmpty()", answers.isEmpty());
-        assertTrue("supervised event's initial event is the given event", listener2.handled.get(Duration.ofMillis(5)).getInitialEvent() == event);
+        assertTrue("answers list is empty", answers.isEmpty());
+        assertThat("supervised initial event", listener2.handled.get(ofMillis(10)).getInitialEvent(), equalTo(event));
     }
 
     @Test
@@ -179,7 +181,7 @@ public class EventBusImplTest {
         eventBus.subscribe(listener4);
 
         // then
-        assertTrue("eventBus.listeners size equal to 3", eventBus.listeners.size() == 5);
+        assertThat("eventBus listeners list size", eventBus.listeners.size(), equalTo(5));
     }
 
     @Test
@@ -191,6 +193,6 @@ public class EventBusImplTest {
         eventBus.subscribe(listener).unsubscribe(listener);
 
         // then
-        assertTrue("eventBus.listeners is empty", eventBus.listeners.isEmpty());
+        assertTrue("eventBus listeners list is empty", eventBus.listeners.isEmpty());
     }
 }

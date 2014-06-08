@@ -6,7 +6,8 @@ import org.junit.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class StdListenerMetadataLookupTest {
 
@@ -26,11 +27,11 @@ public class StdListenerMetadataLookupTest {
         List<ListenerMetadata> res = lookup.lookup(listener).collect(Collectors.toList());
 
         // then
-        assertTrue("lookup result has only one element", res.size() == 1);
+        assertThat("lookup result", res.size(), equalTo(1));
 
         ListenerMetadata metadata = res.get(0);
-        assertTrue("metadata's listener class is SomeListener", metadata.getListenerClass() == SomeListener.class);
-        assertTrue("metadata's handled event class is SomeEvent", metadata.getHandledEventClass() == SomeEvent.class);
-        assertTrue("metadata's listener method's name is \"someListener\"", metadata.getListenerMethod().getName().equals("someListener"));
+        assertThat("metadata listener class", metadata.getListenerClass(), equalTo(SomeListener.class));
+        assertThat("metadata handled event metadata raw class", metadata.getHandledEventMetadata().getRawEventClass(), equalTo(SomeEvent.class));
+        assertThat("metadata listener method name", metadata.getListenerMethod().getName(), equalTo("someListener"));
     }
 }

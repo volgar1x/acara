@@ -3,6 +3,10 @@ package com.github.blackrush.acara;
 import org.fungsi.Either;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertTrue;
 
 public class StdDispatcherTest {
@@ -24,8 +28,8 @@ public class StdDispatcherTest {
         Either<Object, Throwable> result = dispatcher.dispatch(listener, event);
 
         // then
-        assertTrue("dispatcher result should be a success", result.isLeft());
-        assertTrue("dispatcher result should be null", result.left() == null);
-        assertTrue("listener handled event is the exact same given event", listener.handled.get() == event);
+        assertTrue("dispatcher result is a success", result.isLeft());
+        assertThat("dispatcher result", result.left(), is(nullValue()));
+        assertThat("listener handled event", listener.handled.get(), equalTo(event));
     }
 }
