@@ -23,11 +23,12 @@ public final class CoreEventBus {
      * @param metadataLookup a non-null {@link ListenerMetadataLookup}
      * @param dispatcherLookup a non-null {@link com.github.blackrush.acara.dispatch.DispatcherLookup}
      * @param supervisor a non-null {@link com.github.blackrush.acara.supervisor.Supervisor}
+     * @param eventMetadataLookup a non-null {@link com.github.blackrush.acara.EventMetadataLookup}
      * @param logger a non-null {@link org.slf4j.Logger}
      * @return a non-null {@link com.github.blackrush.acara.EventBus}
      */
-    public static EventBus create(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, Logger logger) {
-        return new EventBusImpl(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, logger);
+    public static EventBus create(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, EventMetadataLookup eventMetadataLookup, Logger logger) {
+        return new EventBusImpl(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
     }
 
     /**
@@ -45,6 +46,7 @@ public final class CoreEventBus {
                 StdListenerMetadataLookup.SHARED,
                 StdDispatcher.LOOKUP,
                 StdSupervisor.SHARED,
+                StdEventMetadata.LOOKUP,
                 LoggerFactory.getLogger(EventBusImpl.class)
         );
     }
@@ -88,6 +90,7 @@ public final class CoreEventBus {
         private ListenerMetadataLookup metadataLookup = StdListenerMetadataLookup.SHARED;
         private DispatcherLookup dispatcherLookup = StdDispatcher.LOOKUP;
         private Supervisor supervisor = StdSupervisor.SHARED;
+        private EventMetadataLookup eventMetadataLookup = StdEventMetadata.LOOKUP;
         private Logger logger = LoggerFactory.getLogger(EventBusImpl.class);
 
         /**
@@ -141,6 +144,16 @@ public final class CoreEventBus {
         }
 
         /**
+         * Set `eventMetadataLookup` property. Default to {@code StdEventMetadata.LOOKUP}.
+         * @param eventMetadataLookup a non-null {@link com.github.blackrush.acara.EventMetadataLookup}
+         * @return the very same builder
+         */
+        public Builder setEventMetadataLookup(EventMetadataLookup eventMetadataLookup) {
+            this.eventMetadataLookup = eventMetadataLookup;
+            return this;
+        }
+
+        /**
          * Set `logger` property. Default to {@code LoggerFactory.getLogger(EventBusImpl.class)}
          * @param logger a non-null {@link org.slf4j.Logger}
          * @return the very same builder
@@ -157,7 +170,7 @@ public final class CoreEventBus {
          */
         public EventBus build() {
             requireNonNull(worker, "worker");
-            return create(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, logger);
+            return create(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
     }
 }

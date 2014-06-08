@@ -37,19 +37,21 @@ final class EventBusImpl implements EventBus {
     final ListenerMetadataLookup metadataLookup;
     final DispatcherLookup       dispatcherLookup;
     final Supervisor             supervisor;
+    final EventMetadataLookup    eventMetadataLookup;
     final Logger                 logger;
 
     final Map<ListenerMetadata, Dispatcher> dispatchers     = new HashMap<>();
     final ListMultimap<Class<?>, Listener>  listeners       = Multimaps.newListMultimap(new IdentityHashMap<>(), ArrayList::new);
     final Set<Class<?>>                     deadSubscribers = Sets.newIdentityHashSet();
 
-    EventBusImpl(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, Logger logger) {
-        this.worker           = requireNonNull(worker, "worker");
-        this.defaultAsync     = defaultAsync;
-        this.metadataLookup   = requireNonNull(metadataLookup, "metadataLookup");
-        this.dispatcherLookup = requireNonNull(dispatcherLookup, "dispatcherLookup");
-        this.supervisor       = requireNonNull(supervisor, "supervisor");
-        this.logger           = requireNonNull(logger, "logger");
+    EventBusImpl(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, EventMetadataLookup eventMetadataLookup, Logger logger) {
+        this.worker              = requireNonNull(worker, "worker");
+        this.defaultAsync        = defaultAsync;
+        this.metadataLookup      = requireNonNull(metadataLookup, "metadataLookup");
+        this.dispatcherLookup    = requireNonNull(dispatcherLookup, "dispatcherLookup");
+        this.supervisor          = requireNonNull(supervisor, "supervisor");
+        this.eventMetadataLookup = requireNonNull(eventMetadataLookup, "eventMetadataLookup");
+        this.logger              = requireNonNull(logger, "logger");
     }
 
     Class<?> getSubscriberClass(Object subscriber) {

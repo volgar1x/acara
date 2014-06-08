@@ -33,6 +33,7 @@ public class EventBusImplTest {
                 StdListenerMetadataLookup.SHARED,
                 StdDispatcher.LOOKUP,
                 supervisor,
+                StdEventMetadata.LOOKUP,
                 LoggerFactory.getLogger(EventBusImpl.class)
         );
     }
