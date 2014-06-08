@@ -28,7 +28,7 @@ public interface EventMetadata {
     /**
      * Test if this {@link com.github.blackrush.acara.EventMetadata} equals to another {@link java.lang.Object}. Used in hash tables.
      * @param other a nullable value
-     * @return {@literal true} if it is equal, {@link false} otherwise
+     * @return {@literal true} if it is equal, {@literal false} otherwise
      */
     @Override
     boolean equals(Object other);
