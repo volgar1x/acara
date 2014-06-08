@@ -40,7 +40,7 @@ final class EventBusImpl implements EventBus {
     final Logger                 logger;
 
     final Map<ListenerMetadata, Dispatcher> dispatchers     = new HashMap<>();
-    final ListMultimap<Class<?>, Listener>  listeners       = Multimaps.newListMultimap(new IdentityHashMap<>(), ArrayList::new);
+    final ListMultimap<EventMetadata, Listener>  listeners  = Multimaps.newListMultimap(new IdentityHashMap<>(), ArrayList::new);
 
     EventBusImpl(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, EventMetadataLookup eventMetadataLookup, Logger logger) {
         this.worker              = requireNonNull(worker, "worker");
@@ -56,8 +56,10 @@ final class EventBusImpl implements EventBus {
         return subscriber.getClass();
     }
 
-    Class<?> getEventClass(Object event) {
-        return event.getClass();
+    EventMetadata getEventMetadata(Object event) {
+        return eventMetadataLookup.lookup(event)
+                .orElseThrow(() -> new IllegalStateException("couldn't lookup metadata for event " + event))
+                ;
     }
 
     Stream<Either<Object, Throwable>> dispatch(Stream<Listener> listeners, Object event) {
@@ -130,13 +132,13 @@ final class EventBusImpl implements EventBus {
 
     @Override
     public Future<List<Object>> publishAsync(Object event) {
-        Collection<Listener> listeners = this.listeners.get(getEventClass(event));
+        Collection<Listener> listeners = this.listeners.get(getEventMetadata(event));
         return worker.submit(() -> doDispatch(event, listeners.stream(), true));
     }
 
     @Override
     public List<Object> publishSync(Object event) {
-        Collection<Listener> listeners = this.listeners.get(getEventClass(event));
+        Collection<Listener> listeners = this.listeners.get(getEventMetadata(event));
         return doDispatch(event, listeners.stream(), false);
     }
 
@@ -159,7 +161,7 @@ final class EventBusImpl implements EventBus {
                 .<Listener>flatMap(m -> StreamUtils.asStream(
                         getDispatcher(m).map(d ->
                                 new Listener(m, d, subscriber))))
-                .forEach(listener -> listeners.put(listener.metadata.getHandledEventClass(), listener));
+                .forEach(listener -> listeners.put(listener.metadata.getHandledEventMetadata(), listener));
 
         return this;
     }

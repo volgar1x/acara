@@ -72,6 +72,10 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
         return true;
     }
 
+    EventMetadata buildEventMetadata(Method method) {
+        return new StdEventMetadata(method.getParameterTypes()[0]);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -82,7 +86,7 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
         return traverseInheritance(listenerClass)
                 .flatMap(StdListenerMetadataLookup::methodStream)
                 .filter(this::isValidListenerOrWarn)
-                .map(method -> new ListenerMetadata(listenerClass, method, method.getParameterTypes()[0]))
+                .map(method -> new ListenerMetadata(listenerClass, method, buildEventMetadata(method)))
                 ;
     }
 }
