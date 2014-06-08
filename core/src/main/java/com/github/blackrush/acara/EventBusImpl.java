@@ -6,7 +6,6 @@ import com.github.blackrush.acara.supervisor.Supervisor;
 import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-import com.google.common.collect.Sets;
 import org.fungsi.Either;
 import org.fungsi.concurrent.Future;
 import org.fungsi.concurrent.Futures;
@@ -42,7 +41,6 @@ final class EventBusImpl implements EventBus {
 
     final Map<ListenerMetadata, Dispatcher> dispatchers     = new HashMap<>();
     final ListMultimap<Class<?>, Listener>  listeners       = Multimaps.newListMultimap(new IdentityHashMap<>(), ArrayList::new);
-    final Set<Class<?>>                     deadSubscribers = Sets.newIdentityHashSet();
 
     EventBusImpl(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, EventMetadataLookup eventMetadataLookup, Logger logger) {
         this.worker              = requireNonNull(worker, "worker");
