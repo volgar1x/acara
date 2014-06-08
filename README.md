@@ -2,3 +2,50 @@ acara [![Build Status](https://travis-ci.org/Blackrush/acara.svg)](https://travi
 =====
 
 acara, "event" in Javanese
+
+Quick start
+===========
+
+### Gradle
+
+```groovy
+
+repositories {
+  mavenCentral()
+  maven { url 'https://raw.github.com/Blackrush/fungsi/maven-repo' }
+  maven { url 'https://raw.github.com/Blackrush/acara/maven-repo' }
+}
+
+dependencies {
+  compile 'com.github.blackrush.acara:acara-core:1.0-SNAPSHOT'
+}
+```
+
+Examples
+========
+
+```java
+class SomeEvent {
+  final String someValue;
+}
+
+class SomeListener {
+  @Listener
+  public void someEventListener(SomeEvent evt) {
+    // use SomeEvent as you want
+    // here, I just log its value
+    System.out.println(evt.someValue);
+  }
+}
+
+Worker worker = Workers.wrap(Executors.newSingleThreadExecutor());
+EventBus eventBus = CoreEventBus.create(worker);
+
+SomeListener listener = new SomeListener();
+eventBus.subscribe(listener);
+try {
+  eventBus.publish(new SomeEvent("hello, world!"));
+} finally {
+  eventBus.unsubscribe(listener);
+}
+```
