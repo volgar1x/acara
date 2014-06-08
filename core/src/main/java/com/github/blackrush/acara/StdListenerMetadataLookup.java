@@ -54,17 +54,25 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
         return Stream.of(klass.getDeclaredMethods());
     }
 
-    static boolean isListener(Method method) {
+    private static boolean isListener(Method method) {
         Listener ann = method.getAnnotation(Listener.class);
         return ann != null && !ann.disabled();
     }
 
+    private static boolean listenerHasValidSignature(Method method) {
+        return method.getParameterCount() == 1;
+    }
+
     static boolean isValidListener(Method method) {
-        return isListener(method) && method.getParameterCount() == 1;
+        return isListener(method) && listenerHasValidSignature(method);
     }
 
     boolean isValidListenerOrWarn(Method method) {
-        if (!isValidListener(method)) {
+        if (!isListener(method)) {
+            return false;
+        }
+
+        if (!listenerHasValidSignature(method)) {
             log.warn("method {} has an invalid signature", method);
             return false;
         }
