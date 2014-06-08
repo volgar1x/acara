@@ -12,12 +12,11 @@ Quick start
 
 repositories {
   mavenCentral()
-  maven { url 'https://raw.github.com/Blackrush/fungsi/maven-repo' }
-  maven { url 'https://raw.github.com/Blackrush/acara/maven-repo' }
+  maven { url 'http://dl.bintray.com/blackrush/maven' }
 }
 
 dependencies {
-  compile 'com.github.blackrush.acara:acara-core:1.0-SNAPSHOT'
+  compile 'com.github.blackrush.acara:acara-core:1.0'
 }
 ```
 
