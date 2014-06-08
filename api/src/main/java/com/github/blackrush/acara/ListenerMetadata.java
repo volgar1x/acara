@@ -10,18 +10,18 @@ import java.lang.reflect.Method;
 public final class ListenerMetadata {
     private final Class<?> listenerClass;
     private final Method listenerMethod;
-    private final Class<?> handledEventClass;
+    private final EventMetadata handledEventMetadata;
 
     /**
      * Default constructor.
      * @param listenerClass a non-null {@link java.lang.Class} representing listener's class
      * @param listenerMethod a non-null {@link java.lang.reflect.Method} representing listener's method
-     * @param handledEventClass a non-null {@link java.lang.Class} representing handled event's class
+     * @param handledEventMetadata a non-null {@link com.github.blackrush.acara.EventMetadata} representing handled event's metadata
      */
-    public ListenerMetadata(Class<?> listenerClass, Method listenerMethod, Class<?> handledEventClass) {
+    public ListenerMetadata(Class<?> listenerClass, Method listenerMethod, EventMetadata handledEventMetadata) {
         this.listenerClass = listenerClass;
         this.listenerMethod = listenerMethod;
-        this.handledEventClass = handledEventClass;
+        this.handledEventMetadata = handledEventMetadata;
     }
 
     /**
@@ -42,10 +42,10 @@ public final class ListenerMetadata {
 
     /**
      * Get handled event's {@link java.lang.Class}
-     * @return a non-null class
+     * @return a non-null value
      */
-    public Class<?> getHandledEventClass() {
-        return handledEventClass;
+    public EventMetadata getHandledEventMetadata() {
+        return handledEventMetadata;
     }
 
     @Override
@@ -55,7 +55,7 @@ public final class ListenerMetadata {
 
         ListenerMetadata metadata = (ListenerMetadata) o;
 
-        return handledEventClass.equals(metadata.handledEventClass) &&
+        return handledEventMetadata.equals(metadata.handledEventMetadata) &&
                listenerClass.equals(metadata.listenerClass) &&
                listenerMethod.equals(metadata.listenerMethod);
 
@@ -65,7 +65,7 @@ public final class ListenerMetadata {
     public int hashCode() {
         int result = listenerClass.hashCode();
         result = 31 * result + listenerMethod.hashCode();
-        result = 31 * result + handledEventClass.hashCode();
+        result = 31 * result + handledEventMetadata.hashCode();
         return result;
     }
 
@@ -74,7 +74,7 @@ public final class ListenerMetadata {
         return "ListenerMetadata(" +
                 "listenerClass=" + listenerClass +
                 ", listenerMethod=" + listenerMethod +
-                ", handledEventClass=" + handledEventClass +
+                ", handledEventMetadata=" + handledEventMetadata +
                 ')';
     }
 }
