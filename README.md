@@ -12,7 +12,7 @@ Quick start
 
 repositories {
   mavenCentral()
-  maven { url 'http://dl.bintray.com/blackrush/maven' }
+  jcenter()
 }
 
 dependencies {
