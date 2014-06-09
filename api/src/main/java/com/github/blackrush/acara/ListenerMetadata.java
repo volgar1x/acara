@@ -2,6 +2,8 @@ package com.github.blackrush.acara;
 
 import java.lang.reflect.Method;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * {@link com.github.blackrush.acara.ListenerMetadata} holds all useful listener metadata.
  *
@@ -19,9 +21,9 @@ public final class ListenerMetadata {
      * @param handledEventMetadata a non-null {@link com.github.blackrush.acara.EventMetadata} representing handled event's metadata
      */
     public ListenerMetadata(Class<?> listenerClass, Method listenerMethod, EventMetadata handledEventMetadata) {
-        this.listenerClass = listenerClass;
-        this.listenerMethod = listenerMethod;
-        this.handledEventMetadata = handledEventMetadata;
+        this.listenerClass = requireNonNull(listenerClass, "listenerClass");
+        this.listenerMethod = requireNonNull(listenerMethod, "listenerMethod");
+        this.handledEventMetadata = requireNonNull(handledEventMetadata, "handledEventMetadata");
     }
 
     /**
