@@ -33,6 +33,15 @@ public final class ListenerMetadata {
     }
 
     /**
+     * Create a new {@link com.github.blackrush.acara.ListenerMetadata} with a new listener class
+     * @param listenerClass a non-null {@link java.lang.Class} representing listener's class
+     * @return a non-null {@link com.github.blackrush.acara.ListenerMetadata} or the same instance if the parameter is equal to actual listener class
+     */
+    public ListenerMetadata withListenerClass(Class<?> listenerClass) {
+        return this.listenerClass != listenerClass ? this : new ListenerMetadata(listenerClass, listenerMethod, handledEventMetadata);
+    }
+
+    /**
      * Get listener's {@link java.lang.reflect.Method}
      * @return a non-null method
      */
@@ -41,11 +50,29 @@ public final class ListenerMetadata {
     }
 
     /**
+     * Create a new {@link com.github.blackrush.acara.ListenerMetadata} with a new listener method
+     * @param listenerMethod a non-null {@link java.lang.Class} representing listener's method
+     * @return a non-null {@link com.github.blackrush.acara.ListenerMetadata} or the same instance if the parameter is equal to actual listener method
+     */
+    public ListenerMetadata withListenerMethod(Method listenerMethod) {
+        return this.listenerMethod != listenerMethod ? this : new ListenerMetadata(listenerClass, listenerMethod, handledEventMetadata);
+    }
+
+    /**
      * Get handled event's {@link java.lang.Class}
      * @return a non-null value
      */
     public EventMetadata getHandledEventMetadata() {
         return handledEventMetadata;
+    }
+
+    /**
+     * Create a new {@link com.github.blackrush.acara.ListenerMetadata} with a new handled event metadata
+     * @param handledEventMetadata a non-null {@link com.github.blackrush.acara.EventMetadata} representing handled event's metadata
+     * @return a non-null {@link com.github.blackrush.acara.ListenerMetadata} or the same instance if the parameter is equal to actual handled event metadata
+     */
+    public ListenerMetadata withHandledEventMetadata(EventMetadata handledEventMetadata) {
+        return this.handledEventMetadata != handledEventMetadata ? this : new ListenerMetadata(listenerClass, listenerMethod, handledEventMetadata);
     }
 
     @Override
