@@ -1,6 +1,7 @@
 package com.github.blackrush.acara;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
@@ -34,5 +35,15 @@ public interface EventMetadataLookup {
 
             return other.lookup(event);
         };
+    }
+
+    /**
+     * Convert looked-up {@link com.github.blackrush.acara.EventMetadata} to another {@link com.github.blackrush.acara.EventMetadata}
+     * @param fn a non-null {@link java.util.function.Function}
+     * @return a non-null {@link com.github.blackrush.acara.EventMetadataLookup}
+     */
+    default EventMetadataLookup bind(Function<EventMetadata, Optional<EventMetadata>> fn) {
+        requireNonNull(fn, "fn");
+        return event -> this.lookup(event).flatMap(fn);
     }
 }

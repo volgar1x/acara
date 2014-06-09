@@ -3,6 +3,7 @@ package com.github.blackrush.acara.dispatch;
 import com.github.blackrush.acara.ListenerMetadata;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
@@ -36,5 +37,14 @@ public interface DispatcherLookup {
 
             return other.lookup(metadata);
         };
+    }
+
+    /**
+     * Convert looked-up {@link com.github.blackrush.acara.dispatch.Dispatcher} to another {@link com.github.blackrush.acara.dispatch.Dispatcher}
+     * @param fn a non-null {@link java.util.function.Function}
+     * @return a non-null {@link com.github.blackrush.acara.dispatch.DispatcherLookup}
+     */
+    default DispatcherLookup bind(Function<Dispatcher, Optional<Dispatcher>> fn) {
+        return metadata -> this.lookup(metadata).flatMap(fn);
     }
 }
