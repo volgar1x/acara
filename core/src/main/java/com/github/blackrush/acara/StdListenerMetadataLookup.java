@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Spliterators;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * {@inheritDoc}
@@ -29,25 +26,6 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
      */
     public StdListenerMetadataLookup(Logger log) {
         this.log = log;
-    }
-
-    Stream<Class<?>> traverseInheritance(Class<?> klass) {
-        return StreamSupport.stream(new Spliterators.AbstractSpliterator<Class<?>>(Long.MAX_VALUE, 0) {
-            Class<?> cur = klass;
-
-            @Override
-            public boolean tryAdvance(Consumer<? super Class<?>> action) {
-                action.accept(cur);
-
-                Class<?> parent = cur.getSuperclass();
-                if (parent == Object.class) {
-                    return false;
-                } else {
-                    cur = parent;
-                    return true;
-                }
-            }
-        }, false);
     }
 
     static Stream<Method> methodStream(Class<?> klass) {
@@ -91,7 +69,7 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
     public Stream<ListenerMetadata> lookup(Object listener) {
         Class<?> listenerClass = listener.getClass();
         
-        return traverseInheritance(listenerClass)
+        return StreamUtils.traverseInheritance(listenerClass)
                 .flatMap(StdListenerMetadataLookup::methodStream)
                 .filter(this::isValidListenerOrWarn)
                 .map(method -> new ListenerMetadata(listenerClass, method, buildEventMetadata(method)))
