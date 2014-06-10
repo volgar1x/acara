@@ -1,5 +1,7 @@
 package com.github.blackrush.acara;
 
+import java.util.stream.Stream;
+
 /**
  * {@link com.github.blackrush.acara.EventMetadata} provides metadata about published events. Implementations should be
  * immutable and implementing equals/hashCode.
@@ -10,6 +12,12 @@ public interface EventMetadata {
      * @return a non-null value
      */
     Class<?> getRawEventClass();
+
+    /**
+     * Get parents of this {@link com.github.blackrush.acara.EventMetadata}
+     * @return a non-null stream
+     */
+    Stream<EventMetadata> getParent();
 
     /**
      * Test if this {@link com.github.blackrush.acara.EventMetadata} applies to a given event instance.
