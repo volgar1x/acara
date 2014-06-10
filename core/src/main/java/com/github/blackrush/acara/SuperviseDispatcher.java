@@ -15,6 +15,9 @@ import static java.util.Objects.requireNonNull;
  * {@inheritDoc}
  */
 public final class SuperviseDispatcher extends TypedDispatcher<SupervisedEvent> {
+    /**
+     * Lookup {@link com.github.blackrush.acara.SuperviseDispatcher} if given a {@link com.github.blackrush.acara.Supervise} listener metadata
+     */
     public static final DispatcherLookup LOOKUP = metadata -> {
         if (isSuperviseListener(metadata.getListenerMethod())) {
             return Optional.of(new SuperviseDispatcher(metadata));

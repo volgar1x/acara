@@ -11,12 +11,31 @@ import java.util.stream.Stream;
  */
 public final class SuperviseListenerMetadataLookup implements ListenerMetadataLookup {
 
+    /**
+     * A shareable instance of {@link com.github.blackrush.acara.SuperviseListenerMetadataLookup}
+     */
     public static final SuperviseListenerMetadataLookup SHARED = new SuperviseListenerMetadataLookup();
 
+    /**
+     * Test if given {@link java.lang.reflect.Method} is a {@link com.github.blackrush.acara.Supervise} listener.
+     * This method does not check his validity.
+     *
+     * @param method a non-null method
+     * @return {@literal true} if given {@link java.lang.reflect.Method} is a {@link com.github.blackrush.acara.Supervise} listener, {@literal false} otherwise
+     * @see #isValidSuperviseListener(java.lang.reflect.Method)
+     */
     public static boolean isSuperviseListener(Method method) {
         return method.isAnnotationPresent(Supervise.class);
     }
 
+    /**
+     * Test if given {@link java.lang.reflect.Method} is a valid {@link com.github.blackrush.acara.Supervise} listener.
+     * This method does not check if given {@link java.lang.reflect.Method} is actually a {@link com.github.blackrush.acara.Supervise} listener, only his validity.
+     *
+     * @param method a non-null method
+     * @return {@literal true} if given {@link java.lang.reflect.Method} is a valid {@link com.github.blackrush.acara.Supervise} listener, {@literal false} otherwise
+     * @see #isSuperviseListener(java.lang.reflect.Method)
+     */
     public static boolean isValidSuperviseListener(Method method) {
         return method.getParameterCount() == 2 &&
                Throwable.class.isAssignableFrom(method.getParameterTypes()[0]);

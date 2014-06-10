@@ -10,6 +10,9 @@ import static java.util.Objects.requireNonNull;
  * {@inheritDoc}
  */
 public final class SupervisedEventMetadata implements EventMetadata {
+    /**
+     * Lookup a {@link com.github.blackrush.acara.SupervisedEventMetadata} if given event instance is an instance of {@link com.github.blackrush.acara.supervisor.event.SupervisedEvent}
+     */
     public static final EventMetadataLookup LOOKUP = event -> {
         if (event instanceof SupervisedEvent) {
             SupervisedEvent evt = (SupervisedEvent) event;
