@@ -10,11 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Executors;
 
 import static java.time.Duration.ofMillis;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -85,6 +87,32 @@ public class EventBusImplTest {
         // then
         assertThat("answers size", answers.size(), equalTo(1));
         assertThat("first answer", answers.get(0), equalTo(event.someValue));
+    }
+
+    @Test
+    public void testPublishAndNoAnswer() throws Exception {
+        // given
+        SomeEvent event = new SomeEvent("publish-sync-no-answer");
+        SomeListener listener = new SomeListener();
+
+        // when
+        List<Object> answers = eventBus.subscribe(listener).publishSync(event);
+
+        // then
+        assertThat("answers size", answers.size(), equalTo(0));
+    }
+
+    @Test
+    public void testPublishChildEvent() throws Exception {
+        // given
+        ChildEvent event = new ChildEvent("child", 42);
+        SomeListener listener = new SomeListener();
+
+        // when
+        eventBus.subscribe(listener).publishSync(event);
+
+        // then
+        assertThat("handled event", listener.handled.get(Duration.ofMillis(10)), instanceOf(ChildEvent.class));
     }
 
     @Test(expected = Error.class)
