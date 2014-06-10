@@ -5,8 +5,6 @@ import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.github.blackrush.acara.StreamUtils.combination;
-import static com.github.blackrush.acara.StreamUtils.directParent;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -57,13 +55,16 @@ public final class SupervisedEventMetadata implements EventMetadata {
      */
     @Override
     public Stream<EventMetadata> getParent() {
-        return combination(
-                handledCauseClass,
-                handledInitialEventClass,
-                (Class<?> klass) -> directParent(klass, Throwable.class),
-                (Class<?> klass) -> directParent(klass, Object.class),
-                SupervisedEventMetadata::new
-        );
+        Optional<Class<?>> causeParent = StreamUtils.optionalParent(handledCauseClass, Object.class);
+        Optional<Class<?>> eventParent = StreamUtils.optionalParent(handledInitialEventClass, null);
+
+        Stream.Builder<EventMetadata> builder = Stream.builder();
+
+        causeParent.map(parent -> new SupervisedEventMetadata(parent, handledInitialEventClass)).ifPresent(builder);
+        eventParent.map(parent -> new SupervisedEventMetadata(handledCauseClass, parent)).ifPresent(builder);
+        causeParent.flatMap(a -> eventParent.map(b -> new SupervisedEventMetadata(a, b))).ifPresent(builder);
+
+        return builder.build();
     }
 
     /**
