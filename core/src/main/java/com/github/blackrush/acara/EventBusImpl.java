@@ -7,6 +7,7 @@ import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.fungsi.Either;
+import org.fungsi.Throwables;
 import org.fungsi.concurrent.Future;
 import org.fungsi.concurrent.Futures;
 import org.fungsi.concurrent.Worker;
@@ -78,7 +79,7 @@ final class EventBusImpl implements EventBus {
                 Throwable cause = e.right();
                 switch (supervisor.handle(cause)) {
                     case ESCALATE:
-                        throw ExceptionUtils.sneakyThrow(cause);
+                        throw Throwables.propagate(cause);
 
                     case STOP:
                         logger.warn("uncaught exception", cause);
