@@ -84,7 +84,7 @@ public final class CoreEventBus {
      *         <tr><td>logger</td><td>default to {@code LoggerFactory.getLogger(EventBusImpl.class)}</td></tr>
      *     </table>
      */
-    public static class Builder {
+    public static class Builder implements EventBusBuilder {
         private Worker worker;
         private boolean defaultAsync = true;
         private ListenerMetadataLookup metadataLookup = StdListenerMetadataLookup.SHARED;
@@ -128,6 +128,7 @@ public final class CoreEventBus {
          * @param metadataLookup a non-null {@link com.github.blackrush.acara.ListenerMetadataLookup}
          * @return the very same builder
          */
+        @Override
         public Builder addMetadataLookup(ListenerMetadataLookup metadataLookup) {
             this.metadataLookup = this.metadataLookup.concat(metadataLookup);
             return this;
@@ -148,6 +149,7 @@ public final class CoreEventBus {
          * @param dispatcherLookup a non-null {@link com.github.blackrush.acara.dispatch.DispatcherLookup}
          * @return the very same builder
          */
+        @Override
         public Builder addDispatcherLookup(DispatcherLookup dispatcherLookup) {
             this.dispatcherLookup = dispatcherLookup.withFallback(this.dispatcherLookup);
             return this;
@@ -158,6 +160,7 @@ public final class CoreEventBus {
          * @param supervisor a non-null {@link com.github.blackrush.acara.supervisor.Supervisor}
          * @return the very same builder
          */
+        @Override
         public Builder setSupervisor(Supervisor supervisor) {
             this.supervisor = supervisor;
             return this;
@@ -178,6 +181,7 @@ public final class CoreEventBus {
          * @param eventMetadataLookup a non-null {@link com.github.blackrush.acara.EventMetadataLookup}
          * @return the very same builder
          */
+        @Override
         public Builder addEventMetadataLookup(EventMetadataLookup eventMetadataLookup) {
             this.eventMetadataLookup = eventMetadataLookup.withFallback(this.eventMetadataLookup);
             return this;
@@ -198,6 +202,7 @@ public final class CoreEventBus {
          * @return a non-null {@link com.github.blackrush.acara.EventBus}
          * @throws java.lang.NullPointerException if missing properties
          */
+        @Override
         public EventBus build() {
             requireNonNull(worker, "worker");
             return create(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
