@@ -2,12 +2,29 @@ package com.github.blackrush.acara;
 
 import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 
+import java.util.Optional;
+
 import static java.util.Objects.requireNonNull;
 
 /**
  * {@inheritDoc}
  */
 public final class SupervisedEventMetadata implements EventMetadata {
+    public static final EventMetadataLookup LOOKUP = event -> {
+        if (event instanceof SupervisedEvent) {
+            SupervisedEvent evt = (SupervisedEvent) event;
+
+            @SuppressWarnings("unchecked")
+            Class<Throwable> handledCauseClass = (Class) evt.getCause().getClass();
+
+            Class<?> handledInitialEventClass = evt.getInitialEvent().getClass();
+
+            return Optional.of(new SupervisedEventMetadata(handledCauseClass, handledInitialEventClass));
+        }
+
+        return Optional.empty();
+    };
+
     private final Class<? extends Throwable> handledCauseClass;
     private final Class<?> handledInitialEventClass;
 
