@@ -66,7 +66,7 @@ public class SuperviseListenerMetadataLookupTest {
         class SuperviseListener {
             final Promise<Unit> handledA = Promises.create();
             final Promise<Unit> handledB = Promises.create();
-
+            final Promise<Unit> handledC = Promises.create();
             @Supervise
             public void A(NullPointerException npe, SomeEvent evt) {
                 handledA.complete(unit());
@@ -75,6 +75,11 @@ public class SuperviseListenerMetadataLookupTest {
             @Supervise
             public void B(Throwable t, Object evt) {
                 handledB.complete(unit());
+            }
+
+            @Supervise
+            public void C(Exception e) {
+                handledC.complete(unit());
             }
         }
 
@@ -94,5 +99,25 @@ public class SuperviseListenerMetadataLookupTest {
         // then
         listener.handledA.get(Duration.ofMillis(10));
         listener.handledB.get(Duration.ofMillis(10));
+        listener.handledC.get(Duration.ofMillis(10));
+    }
+
+    @Test
+    public void testOptionalInitialEventParameter() throws Exception {
+        // given
+        class MySuperviseListener {
+            @Supervise
+            public void arithmetic(ArithmeticException ex) {
+
+            }
+        }
+
+        MySuperviseListener listener = new MySuperviseListener();
+
+        // when
+        List<ListenerMetadata> res = lookup.lookup(listener).collect(toList());
+
+        // then
+        assertThat("result size", res.size(), equalTo(1));
     }
 }
