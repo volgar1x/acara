@@ -64,11 +64,17 @@ public class SuperviseListenerMetadataLookupTest {
     public void testEventBus() throws Exception {
         // given
         class SuperviseListener {
-            final Promise<Unit> handled = Promises.create();
+            final Promise<Unit> handledA = Promises.create();
+            final Promise<Unit> handledB = Promises.create();
 
             @Supervise
-            public void npe(NullPointerException npe, SomeEvent evt) {
-                handled.complete(unit());
+            public void A(NullPointerException npe, SomeEvent evt) {
+                handledA.complete(unit());
+            }
+
+            @Supervise
+            public void B(Throwable t, Object evt) {
+                handledB.complete(unit());
             }
         }
 
@@ -86,6 +92,7 @@ public class SuperviseListenerMetadataLookupTest {
         eventBus.subscribe(listener).publish(new SupervisedEvent(new SomeEvent("event-bus"), new NullPointerException()));
 
         // then
-        assertThat("result is unit", listener.handled.get(Duration.ofMillis(10)), equalTo(unit()));
+        listener.handledA.get(Duration.ofMillis(10));
+        listener.handledB.get(Duration.ofMillis(10));
     }
 }
