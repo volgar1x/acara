@@ -60,7 +60,7 @@ public final class SuperviseListenerMetadataLookup implements ListenerMetadataLo
     }
 
     private Class<?> getHandledInitialEventClass(Method method) {
-        return method.getParameterTypes()[0];
+        return method.getParameterTypes()[1];
     }
 
     /**
