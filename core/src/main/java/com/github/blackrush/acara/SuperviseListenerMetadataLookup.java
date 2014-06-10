@@ -1,7 +1,4 @@
-package com.github.blackrush.acara.supervisor;
-
-import com.github.blackrush.acara.ListenerMetadata;
-import com.github.blackrush.acara.ListenerMetadataLookup;
+package com.github.blackrush.acara;
 
 import java.util.stream.Stream;
 

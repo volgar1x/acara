@@ -1,6 +1,5 @@
-package com.github.blackrush.acara.supervisor;
+package com.github.blackrush.acara;
 
-import com.github.blackrush.acara.EventMetadata;
 import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 
 import static java.util.Objects.requireNonNull;

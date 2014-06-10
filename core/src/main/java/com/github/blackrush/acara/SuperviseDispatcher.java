@@ -1,4 +1,4 @@
-package com.github.blackrush.acara.supervisor;
+package com.github.blackrush.acara;
 
 import com.github.blackrush.acara.ListenerMetadata;
 import com.github.blackrush.acara.dispatch.TypedDispatcher;
