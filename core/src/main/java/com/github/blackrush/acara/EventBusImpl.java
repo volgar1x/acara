@@ -102,10 +102,6 @@ final class EventBusImpl implements EventBus {
         return supervised;
     }
 
-    List<ListenerMetadata> getListenerMetadata(Object subscriber) {
-        return metadataLookup.lookup(subscriber).collect(Collectors.toList());
-    }
-
     Optional<Dispatcher> getDispatcher(ListenerMetadata metadata) {
         Optional<Dispatcher> res = Optional.ofNullable(dispatchers.get(metadata));
 
