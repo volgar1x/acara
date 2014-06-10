@@ -124,12 +124,32 @@ public final class CoreEventBus {
         }
 
         /**
+         * Concat current `metadataLookup` with another {@link com.github.blackrush.acara.ListenerMetadataLookup}
+         * @param metadataLookup a non-null {@link com.github.blackrush.acara.ListenerMetadataLookup}
+         * @return the very same builder
+         */
+        public Builder addMetadataLookup(ListenerMetadataLookup metadataLookup) {
+            this.metadataLookup = this.metadataLookup.concat(metadataLookup);
+            return this;
+        }
+
+        /**
          * Set `dispatcherLookup` property. Default to {@code StdDispatcher.LOOKUP}.
          * @param dispatcherLookup a non-null {@link com.github.blackrush.acara.dispatch.DispatcherLookup}
          * @return the very same builder
          */
         public Builder setDispatcherLookup(DispatcherLookup dispatcherLookup) {
             this.dispatcherLookup = dispatcherLookup;
+            return this;
+        }
+
+        /**
+         * Set `dispatcherLookup` property with current `dispatcherLookup` as fallback.
+         * @param dispatcherLookup a non-null {@link com.github.blackrush.acara.dispatch.DispatcherLookup}
+         * @return the very same builder
+         */
+        public Builder addDispatcherLookup(DispatcherLookup dispatcherLookup) {
+            this.dispatcherLookup = dispatcherLookup.withFallback(this.dispatcherLookup);
             return this;
         }
 
@@ -150,6 +170,16 @@ public final class CoreEventBus {
          */
         public Builder setEventMetadataLookup(EventMetadataLookup eventMetadataLookup) {
             this.eventMetadataLookup = eventMetadataLookup;
+            return this;
+        }
+
+        /**
+         * Set `eventMetadataLookup` property with current `eventMetadataLookup` as fallback.
+         * @param eventMetadataLookup a non-null {@link com.github.blackrush.acara.EventMetadataLookup}
+         * @return the very same builder
+         */
+        public Builder addEventMetadataLookup(EventMetadataLookup eventMetadataLookup) {
+            this.eventMetadataLookup = eventMetadataLookup.withFallback(this.eventMetadataLookup);
             return this;
         }
 
