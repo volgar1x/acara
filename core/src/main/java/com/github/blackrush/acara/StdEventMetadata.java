@@ -1,7 +1,9 @@
 package com.github.blackrush.acara;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static com.github.blackrush.acara.StreamUtils.directParent;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -30,6 +32,14 @@ public final class StdEventMetadata implements EventMetadata {
     @Override
     public Class<?> getRawEventClass() {
         return eventClass;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Stream<EventMetadata> getParent() {
+        return directParent(eventClass, Object.class).map(StdEventMetadata::new);
     }
 
     /**

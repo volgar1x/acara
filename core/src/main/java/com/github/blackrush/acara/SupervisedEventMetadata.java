@@ -3,7 +3,10 @@ package com.github.blackrush.acara;
 import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static com.github.blackrush.acara.StreamUtils.combination;
+import static com.github.blackrush.acara.StreamUtils.directParent;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -28,7 +31,7 @@ public final class SupervisedEventMetadata implements EventMetadata {
         return Optional.empty();
     };
 
-    final Class<? extends Throwable> handledCauseClass;
+    final Class<?> handledCauseClass;
     final Class<?> handledInitialEventClass;
 
     /**
@@ -36,7 +39,7 @@ public final class SupervisedEventMetadata implements EventMetadata {
      * @param handledCauseClass non-null class
      * @param handledInitialEventClass non-null class
      */
-    public SupervisedEventMetadata(Class<? extends Throwable> handledCauseClass, Class<?> handledInitialEventClass) {
+    public SupervisedEventMetadata(Class<?> handledCauseClass, Class<?> handledInitialEventClass) {
         this.handledCauseClass = requireNonNull(handledCauseClass, "handledCauseClass");
         this.handledInitialEventClass = requireNonNull(handledInitialEventClass, "handledInitialEventClass");
     }
@@ -47,6 +50,20 @@ public final class SupervisedEventMetadata implements EventMetadata {
     @Override
     public Class<?> getRawEventClass() {
         return SupervisedEvent.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Stream<EventMetadata> getParent() {
+        return combination(
+                handledCauseClass,
+                handledInitialEventClass,
+                (Class<?> klass) -> directParent(klass, Throwable.class),
+                (Class<?> klass) -> directParent(klass, Object.class),
+                SupervisedEventMetadata::new
+        );
     }
 
     /**
