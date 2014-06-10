@@ -35,6 +35,10 @@ final class StreamUtils {
     }
 
     public static Stream<Class<?>> traverseInheritance(Class<?> klass) {
+        if (klass == Object.class) {
+            return Stream.empty();
+        }
+
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<Class<?>>(Long.MAX_VALUE, 0) {
             Class<?> cur = klass;
 
