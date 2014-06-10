@@ -6,6 +6,7 @@ import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 import org.fungsi.Either;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Optional;
 
 import static com.github.blackrush.acara.SuperviseListenerMetadataLookup.isSuperviseListener;
@@ -38,8 +39,16 @@ public final class SuperviseDispatcher extends TypedDispatcher<SupervisedEvent> 
 
     @Override
     protected Either<Object, Throwable> dispatch0(Object listener, SupervisedEvent event) {
+        Method method = metadata.getListenerMethod();
         try {
-            return Either.success(metadata.getListenerMethod().invoke(listener, event.getCause(), event.getInitialEvent()));
+            final Object answer;
+            if (method.getParameterCount() == 2) {
+                answer = method.invoke(listener, event.getCause(), event.getInitialEvent());
+            } else {
+                answer = method.invoke(listener, event.getCause());
+            }
+
+            return Either.success(answer);
         } catch (IllegalAccessException e) {
             return Either.failure(e);
         } catch (InvocationTargetException e) {

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -37,7 +38,7 @@ public final class SuperviseListenerMetadataLookup implements ListenerMetadataLo
      * @see #isSuperviseListener(java.lang.reflect.Method)
      */
     public static boolean isValidSuperviseListener(Method method) {
-        return method.getParameterCount() == 2 &&
+        return (method.getParameterCount() == 1 || method.getParameterCount() == 2) &&
                Throwable.class.isAssignableFrom(method.getParameterTypes()[0]);
     }
 
@@ -55,12 +56,14 @@ public final class SuperviseListenerMetadataLookup implements ListenerMetadataLo
     }
 
     @SuppressWarnings("unchecked")
-    private Class<Throwable> getHandledCauseClass(Method method) {
-        return (Class) method.getParameterTypes()[0];
+    private static Class<?> getHandledCauseClass(Method method) {
+        return method.getParameterTypes()[0];
     }
 
-    private Class<?> getHandledInitialEventClass(Method method) {
-        return method.getParameterTypes()[1];
+    private static Optional<Class<?>> getHandledInitialEventClass(Method method) {
+        return method.getParameterCount() == 2
+                ? Optional.of(method.getParameterTypes()[1])
+                : Optional.empty();
     }
 
     /**
@@ -73,7 +76,7 @@ public final class SuperviseListenerMetadataLookup implements ListenerMetadataLo
                 .filter(this::checkSuperviseListenerValidity)
                 .map(m -> new ListenerMetadata(listener.getClass(), m, new SupervisedEventMetadata(
                         getHandledCauseClass(m),
-                        getHandledInitialEventClass(m)
+                        getHandledInitialEventClass(m).orElse(Object.class)
                 )));
     }
 }
