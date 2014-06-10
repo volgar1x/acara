@@ -8,7 +8,9 @@ import org.junit.runners.Suite;
         EventBusImplTest.class,
         StdDispatcherTest.class,
         StdListenerMetadataLookupTest.class,
-        StdSupervisorTest.class
+        StdSupervisorTest.class,
+        SupervisedEventMetadataTest.class,
+        SuperviseListenerMetadataLookupTest.class,
 })
 public class AcaraCoreTestSuite {
 }
