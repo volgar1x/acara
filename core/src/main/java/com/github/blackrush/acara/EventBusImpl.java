@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
+import static org.fungsi.Unit.unit;
 
 final class EventBusImpl implements EventBus {
     class Listener {
@@ -64,7 +65,15 @@ final class EventBusImpl implements EventBus {
     }
 
     Stream<Either<Object, Throwable>> dispatch(Stream<Listener> listeners, Object event) {
-        return listeners.map(listener -> listener.dispatcher.dispatch(listener.instance, event));
+        return listeners.map(listener -> {
+            Either<Object, Throwable> answer = listener.dispatcher.dispatch(listener.instance, event);
+
+            if (listener.metadata.getListenerMethod().getReturnType() == void.class) {
+                return answer.leftMap(x -> unit());
+            }
+
+            return answer;
+        });
     }
 
     List<Object> supervise(Stream<Either<Object, Throwable>> stream, List<Throwable> toDispatch) {
@@ -74,7 +83,9 @@ final class EventBusImpl implements EventBus {
         loop:
         for (Either<Object, Throwable> e : unsupervised) {
             if (e.isLeft()) {
-                supervised.add(e.left());
+                if (e.left() != unit()) {
+                    supervised.add(e.left());
+                }
             } else {
                 Throwable cause = e.right();
                 switch (supervisor.handle(cause)) {
