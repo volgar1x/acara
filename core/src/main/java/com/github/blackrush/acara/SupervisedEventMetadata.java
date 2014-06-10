@@ -28,8 +28,8 @@ public final class SupervisedEventMetadata implements EventMetadata {
         return Optional.empty();
     };
 
-    private final Class<? extends Throwable> handledCauseClass;
-    private final Class<?> handledInitialEventClass;
+    final Class<? extends Throwable> handledCauseClass;
+    final Class<?> handledInitialEventClass;
 
     /**
      * Default constructor.
