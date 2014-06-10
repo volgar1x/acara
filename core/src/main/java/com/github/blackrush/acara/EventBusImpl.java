@@ -131,16 +131,23 @@ final class EventBusImpl implements EventBus {
         return supervised;
     }
 
+    Stream<EventMetadata> resolveHierarchy(EventMetadata lowestEvent) {
+        return StreamUtils.collect(Stream.of(lowestEvent), EventMetadata::getParent).distinct();
+    }
+
+    Stream<Listener> resolveListeners(EventMetadata meta) {
+        return resolveHierarchy(meta).flatMap(it -> listeners.get(it).stream());
+    }
+
     @Override
     public Future<List<Object>> publishAsync(Object event) {
-        Collection<Listener> listeners = this.listeners.get(getEventMetadata(event));
-        return worker.submit(() -> doDispatch(event, listeners.stream(), true));
+        EventMetadata meta = getEventMetadata(event);
+        return worker.submit(() -> doDispatch(event, resolveListeners(meta), true));
     }
 
     @Override
     public List<Object> publishSync(Object event) {
-        Collection<Listener> listeners = this.listeners.get(getEventMetadata(event));
-        return doDispatch(event, listeners.stream(), false);
+        return doDispatch(event, resolveListeners(getEventMetadata(event)), false);
     }
 
     @Override
