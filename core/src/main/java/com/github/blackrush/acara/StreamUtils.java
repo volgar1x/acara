@@ -6,6 +6,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 final class StreamUtils {
     private StreamUtils() {}
@@ -31,5 +32,24 @@ final class StreamUtils {
 
     public static <T> Stream<T> asStream(Optional<T> opt) {
         return opt.map(Stream::of).orElse(Stream.empty());
+    }
+
+    public static Stream<Class<?>> traverseInheritance(Class<?> klass) {
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<Class<?>>(Long.MAX_VALUE, 0) {
+            Class<?> cur = klass;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super Class<?>> action) {
+                action.accept(cur);
+
+                Class<?> parent = cur.getSuperclass();
+                if (parent == Object.class) {
+                    return false;
+                } else {
+                    cur = parent;
+                    return true;
+                }
+            }
+        }, false);
     }
 }
