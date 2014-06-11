@@ -74,6 +74,7 @@ public final class CoreEventBus {
 
     /**
      * {@link com.github.blackrush.acara.CoreEventBus.Builder} fluently builds {@link com.github.blackrush.acara.EventBus}.
+     * It is already preconfigured with {@link com.github.blackrush.acara.StdEventModule}
      *
      *     <table summary="Properties">
      *         <tr><td>worker</td><td><strong>required</strong></td></tr>
@@ -194,6 +195,15 @@ public final class CoreEventBus {
          */
         public Builder setLogger(Logger logger) {
             this.logger = logger;
+            return this;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Builder install(EventModule module) {
+            module.configure(this);
             return this;
         }
 
