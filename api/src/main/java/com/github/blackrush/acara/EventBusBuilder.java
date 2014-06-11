@@ -3,6 +3,8 @@ package com.github.blackrush.acara;
 import com.github.blackrush.acara.dispatch.DispatcherLookup;
 import com.github.blackrush.acara.supervisor.Supervisor;
 
+import java.util.function.UnaryOperator;
+
 /**
  * An {@link com.github.blackrush.acara.EventBusBuilder} is responsible of building new {@link com.github.blackrush.acara.EventBus}
  */
@@ -16,6 +18,9 @@ public interface EventBusBuilder {
         return module.configure(this);
     }
 
+
+
+
     /**
      * Get current {@link com.github.blackrush.acara.ListenerMetadataLookup} which might be used by the final building {@link com.github.blackrush.acara.EventBus}
      * @return a non-null lookup
@@ -28,6 +33,18 @@ public interface EventBusBuilder {
      * @return a non-null builder
      */
     EventBusBuilder addMetadataLookup(ListenerMetadataLookup metadataLookup);
+
+    /**
+     * Get current {@link com.github.blackrush.acara.ListenerMetadataLookup}, apply an operator on it, and add it back.
+     * @param fn a non-null operator
+     * @return a non-null builder
+     */
+    default EventBusBuilder wrapMetadataLookup(UnaryOperator<ListenerMetadataLookup> fn) {
+        return addMetadataLookup(fn.apply(getMetadataLookup()));
+    }
+
+
+
 
     /**
      * Get current {@link com.github.blackrush.acara.dispatch.DispatcherLookup} which might be used by the final building {@link com.github.blackrush.acara.EventBus}
@@ -44,6 +61,18 @@ public interface EventBusBuilder {
     EventBusBuilder addDispatcherLookup(DispatcherLookup dispatcherLookup);
 
     /**
+     * Get current {@link com.github.blackrush.acara.dispatch.DispatcherLookup}, apply an operator on it, and add it back.
+     * @param fn a non-null operator
+     * @return a non-null builder
+     */
+    default EventBusBuilder wrapDispatcherLookup(UnaryOperator<DispatcherLookup> fn) {
+        return addDispatcherLookup(fn.apply(getDispatcherLookup()));
+    }
+
+
+
+
+    /**
      * Get current {@link com.github.blackrush.acara.EventMetadataLookup} which might be used by the final building {@link com.github.blackrush.acara.EventBus}
      * @return a non-null lookup
      */
@@ -58,6 +87,18 @@ public interface EventBusBuilder {
     EventBusBuilder addEventMetadataLookup(EventMetadataLookup eventMetadataLookup);
 
     /**
+     * Get current {@link com.github.blackrush.acara.EventMetadataLookup}, apply an operator on it, and add it back.
+     * @param fn a non-null operator
+     * @return a non-null builder
+     */
+    default EventBusBuilder wrapEventMetadataLookup(UnaryOperator<EventMetadataLookup> fn) {
+        return addEventMetadataLookup(fn.apply(getEventMetadataLookup()));
+    }
+
+
+
+
+    /**
      * Get current {@link com.github.blackrush.acara.supervisor.Supervisor} which might be used by the final building {@link com.github.blackrush.acara.EventBus}
      * @return a non-null supervisor
      */
@@ -70,6 +111,18 @@ public interface EventBusBuilder {
      * @return a non-null builder
      */
     EventBusBuilder setSupervisor(Supervisor supervisor);
+
+    /**
+     * Get current {@link com.github.blackrush.acara.supervisor.Supervisor}, apply an operator on it, and set it back.
+     * @param fn a non-null operator
+     * @return a non-null builder
+     */
+    default EventBusBuilder wrapSupervisor(UnaryOperator<Supervisor> fn) {
+        return setSupervisor(fn.apply(getSupervisor()));
+    }
+
+
+
 
     /**
      * Build a fresh new {@link com.github.blackrush.acara.EventBus}. This method is guaranteed side-effect free.
