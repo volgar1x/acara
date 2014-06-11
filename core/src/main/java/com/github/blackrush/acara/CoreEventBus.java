@@ -208,6 +208,38 @@ public final class CoreEventBus {
         }
 
         /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ListenerMetadataLookup getMetadataLookup() {
+            return metadataLookup;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public DispatcherLookup getDispatcherLookup() {
+            return dispatcherLookup;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public EventMetadataLookup getEventMetadataLookup() {
+            return eventMetadataLookup;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Supervisor getSupervisor() {
+            return supervisor;
+        }
+
+        /**
          * Build a very new {@link com.github.blackrush.acara.EventBus}
          * @return a non-null {@link com.github.blackrush.acara.EventBus}
          * @throws java.lang.NullPointerException if missing properties
