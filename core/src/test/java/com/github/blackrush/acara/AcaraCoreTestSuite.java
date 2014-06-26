@@ -11,6 +11,7 @@ import org.junit.runners.Suite;
         StdSupervisorTest.class,
         SupervisedEventMetadataTest.class,
         SuperviseListenerMetadataLookupTest.class,
+        StdEventMetadataTest.class
 })
 public class AcaraCoreTestSuite {
 }
