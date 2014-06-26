@@ -115,6 +115,28 @@ public class EventBusImplTest {
         assertThat("handled event", listener.handled.get(Duration.ofMillis(10)), instanceOf(ChildEvent.class));
     }
 
+    @Test
+    public void testPublishImplementingEvent() throws Exception {
+        // given
+        class MyListener {
+            final Promise<EventIface> handled = Promises.create();
+
+            @Listener
+            public void eventIface(EventIface evt) {
+                handled.complete(evt);
+            }
+        }
+
+        EventIface event = new ImplementingEvent();
+        MyListener listener = new MyListener();
+
+        // when
+        eventBus.subscribe(listener).publishSync(event);
+
+        // then
+        assertThat("handled event", listener.handled.get(Duration.ofMillis(10)), instanceOf(ImplementingEvent.class));
+    }
+
     @Test(expected = Error.class)
     public void testPublishAndSuperviseEscalate() throws Exception {
         // given
