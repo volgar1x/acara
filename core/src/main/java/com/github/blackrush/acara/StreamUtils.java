@@ -68,10 +68,13 @@ final class StreamUtils {
     }
 
     public static Stream<Class<?>> directParent(Class<?> klass, Class<?> limit) {
+        Stream<Class<?>> ifaces = Stream.of(klass.getInterfaces());
+
         Class<?> superclass = klass.getSuperclass();
         if (superclass == limit) {
-            return Stream.empty();
+            return ifaces;
         }
-        return Stream.of(superclass);
+
+        return Stream.concat(Stream.of(superclass), ifaces);
     }
 }
