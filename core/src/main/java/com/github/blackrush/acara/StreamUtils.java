@@ -71,7 +71,7 @@ final class StreamUtils {
         Stream<Class<?>> ifaces = Stream.of(klass.getInterfaces());
 
         Class<?> superclass = klass.getSuperclass();
-        if (superclass == limit) {
+        if (superclass == null || superclass == limit) {
             return ifaces;
         }
 
