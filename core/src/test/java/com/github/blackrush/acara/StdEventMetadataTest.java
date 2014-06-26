@@ -11,30 +11,17 @@ import static org.hamcrest.core.IsEqual.equalTo;
 
 public class StdEventMetadataTest {
 
-    interface EventIface {
+    class BothEvent extends SomeEvent implements EventIface {
 
-    }
-
-    class Event {
-
-    }
-
-    class ExtendingEvent extends Event {
-
-    }
-
-    class ImplementingEvent implements EventIface {
-
-    }
-
-    class BothEvent extends Event implements EventIface {
-
+        public BothEvent(String someValue) {
+            super(someValue);
+        }
     }
 
     @Test
     public void testDummyEventParent() throws Exception {
         // given
-        StdEventMetadata meta = new StdEventMetadata(Event.class);
+        StdEventMetadata meta = new StdEventMetadata(SomeEvent.class);
 
         // when
         List<Class<?>> parent = meta.getParent().map(EventMetadata::getRawEventClass).collect(Collectors.toList());
@@ -46,14 +33,14 @@ public class StdEventMetadataTest {
     @Test
     public void testExtendingEventParent() throws Exception {
         // given
-        StdEventMetadata meta = new StdEventMetadata(ExtendingEvent.class);
+        StdEventMetadata meta = new StdEventMetadata(ChildEvent.class);
 
         // when
         List<Class<?>> parent = meta.getParent().map(EventMetadata::getRawEventClass).collect(Collectors.toList());
 
         // then
         assertThat("parent size", parent.size(), equalTo(1));
-        assertThat("parent event class", parent.get(0), equalTo(Event.class));
+        assertThat("parent event class", parent.get(0), equalTo(SomeEvent.class));
     }
 
     @Test
@@ -79,7 +66,7 @@ public class StdEventMetadataTest {
 
         // then
         assertThat("parent size", parent.size(), equalTo(2));
-        assertThat("parent event classes", parent, hasItem(Event.class));
+        assertThat("parent event classes", parent, hasItem(SomeEvent.class));
         assertThat("parent event classes", parent, hasItem(EventIface.class));
     }
 }
