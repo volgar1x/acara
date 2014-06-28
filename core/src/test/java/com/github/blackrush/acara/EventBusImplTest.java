@@ -3,6 +3,7 @@ package com.github.blackrush.acara;
 import com.github.blackrush.acara.supervisor.Supervisor;
 import com.github.blackrush.acara.supervisor.SupervisorDirective;
 import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
+import org.fungsi.Unit;
 import org.fungsi.concurrent.Promise;
 import org.fungsi.concurrent.Promises;
 import org.fungsi.concurrent.Workers;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 import static java.time.Duration.ofMillis;
+import static org.fungsi.Unit.unit;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -244,5 +246,49 @@ public class EventBusImplTest {
 
         // then
         assertTrue("eventBus listeners list is empty", eventBus.listeners.isEmpty());
+    }
+
+    @Test
+    public void testCanUnsubscribeInsideAListenerWhenSyncPublishing() throws Exception {
+        // given
+        Promise<Unit> handled = Promises.create();
+
+        Object listener = new Object() {
+            @Listener
+            public void listen(SomeEvent evt) {
+                eventBus.unsubscribe(this);
+                handled.complete(unit());
+            }
+        };
+
+        eventBus.subscribe(listener);
+
+        // when
+        eventBus.publishSync(new SomeEvent("can-unsubscribe-inside-a-listener"));
+
+        // then
+        handled.get(Duration.ofMillis(100));
+    }
+
+    @Test
+    public void testCanUnsubscribeInsideAListenerWhenAsyncPublishing() throws Exception {
+        // given
+        Promise<Unit> handled = Promises.create();
+
+        Object listener = new Object() {
+            @Listener
+            public void listen(SomeEvent evt) {
+                eventBus.unsubscribe(this);
+                handled.complete(unit());
+            }
+        };
+
+        eventBus.subscribe(listener);
+
+        // when
+        eventBus.publishAsync(new SomeEvent("can-unsubscribe-inside-a-listener"));
+
+        // then
+        handled.get(Duration.ofMillis(100));
     }
 }
