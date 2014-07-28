@@ -1,5 +1,7 @@
 package com.github.blackrush.acara;
 
+import java.util.Collection;
+
 /**
  * {@link com.github.blackrush.acara.Subscribable} is the super-interface taking care about subscriptions of listeners.
  * @see com.github.blackrush.acara.Publishable
@@ -14,8 +16,21 @@ public interface Subscribable {
     Subscribable subscribe(Object listener);
 
     /**
+     * Subscribe multiple listeners.
+     * @param listeners a non-null collection of non-null listeners
+     * @return this very same instance
+     */
+    Subscribable subscribeMany(Collection<?> listeners);
+
+    /**
      * Unsubscribe a listener.
      * @param listener a non-null listener
      */
     void unsubscribe(Object listener);
+
+    /**
+     * Unsubscribe multiple listeners.
+     * @param listeners a non-null collection of non-null listeners
+     */
+    void unsubscribeMany(Collection<?> listeners);
 }

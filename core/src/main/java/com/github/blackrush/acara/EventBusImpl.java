@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -176,30 +177,18 @@ final class EventBusImpl implements EventBus {
         }
     }
 
-    @Override
-    public EventBus subscribe(Object subscriber) {
-        List<Listener> listeners = metadataLookup.lookup(subscriber)
-                .flatMap(m -> asStream(dispatcherLookup.lookup(m))
-                        .map(d -> new Listener(m, d, subscriber)))
-                .collect(Collectors.toList())
-                ;
-
-        if (listeners.isEmpty()) return this;
-
+    private void addListeners(List<Listener> listeners) {
         long stamp = lock.writeLock();
         try {
             for (Listener listener : listeners) {
                 this.listeners.put(listener.metadata.getHandledEventMetadata(), listener);
             }
-
-            return this;
         } finally {
             lock.unlockWrite(stamp);
         }
     }
 
-    @Override
-    public void unsubscribe(Object subscriber) {
+    private void removeListeners(Predicate<Listener> fn) {
         long stamp = lock.readLock();
         try {
             boolean remove = false;
@@ -208,7 +197,7 @@ final class EventBusImpl implements EventBus {
             while (it.hasNext()) {
                 Listener listener = it.next();
 
-                if (listener.instance == subscriber) {
+                if (fn.test(listener)) {
                     if (!remove) {
                         long writeLock = lock.tryConvertToWriteLock(stamp);
                         if (writeLock != 0L) {
@@ -226,5 +215,44 @@ final class EventBusImpl implements EventBus {
         } finally {
             lock.unlock(stamp);
         }
+    }
+
+    private Stream<Listener> createListeners(Object subscriber) {
+        return metadataLookup.lookup(subscriber)
+                .flatMap(m -> asStream(dispatcherLookup.lookup(m))
+                        .map(d -> new Listener(m, d, subscriber)))
+                ;
+    }
+
+    @Override
+    public EventBus subscribe(Object subscriber) {
+        List<Listener> listeners = createListeners(subscriber).collect(Collectors.toList());
+
+        if (!listeners.isEmpty()) {
+            addListeners(listeners);
+        }
+
+        return this;
+    }
+
+    @Override
+    public EventBus subscribeMany(Collection<?> subscribers) {
+        List<Listener> listeners = subscribers.stream().flatMap(this::createListeners).collect(Collectors.toList());
+
+        if (!listeners.isEmpty()) {
+            addListeners(listeners);
+        }
+
+        return this;
+    }
+
+    @Override
+    public void unsubscribe(Object subscriber) {
+        removeListeners(it -> it.instance == subscriber);
+    }
+
+    @Override
+    public void unsubscribeMany(Collection<?> listeners) {
+        removeListeners(it -> listeners.contains(it.instance));
     }
 }
