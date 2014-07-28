@@ -199,7 +199,7 @@ final class EventBusImpl implements EventBus {
     }
 
     @Override
-    public boolean unsubscribe(Object subscriber) {
+    public void unsubscribe(Object subscriber) {
         long stamp = lock.readLock();
         try {
             boolean remove = false;
@@ -223,8 +223,6 @@ final class EventBusImpl implements EventBus {
                     remove = true;
                 }
             }
-
-            return remove;
         } finally {
             lock.unlock(stamp);
         }
