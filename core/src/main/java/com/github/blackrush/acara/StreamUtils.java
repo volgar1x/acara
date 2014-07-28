@@ -6,6 +6,8 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -76,5 +78,9 @@ final class StreamUtils {
         }
 
         return Stream.concat(Stream.of(superclass), ifaces);
+    }
+
+    public static <T> Stream<T> times(int n, Supplier<T> fn) {
+        return IntStream.range(0, n).mapToObj(i -> fn.get());
     }
 }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static java.time.Duration.ofMillis;
 import static org.fungsi.Unit.unit;
@@ -290,5 +291,36 @@ public class EventBusImplTest {
 
         // then
         handled.get(Duration.ofMillis(100));
+    }
+
+    @Test
+    public void testSubscribeMany() throws Exception {
+        // given
+        final int toSubscribe = 5;
+        final List<SomeListener> subscribers =
+                StreamUtils.times(toSubscribe, SomeListener::new)
+                        .collect(Collectors.toList());
+
+        // when
+        eventBus.subscribeMany(subscribers);
+
+        // then
+        assertThat("eventBus listeners size", eventBus.listeners.size(), equalTo(toSubscribe));
+    }
+
+    @Test
+    public void testUnsubcribeMany() throws Exception {
+        // given
+        final int toSubscribe = 5;
+        final List<SomeListener> subscribers =
+                StreamUtils.times(toSubscribe, SomeListener::new)
+                        .collect(Collectors.toList());
+
+        // when
+        eventBus.subscribeMany(subscribers);
+        eventBus.unsubscribeMany(subscribers);
+
+        // then
+        assertTrue("eventBus listeners is empty", eventBus.listeners.isEmpty());
     }
 }
