@@ -155,12 +155,20 @@ final class EventBusImpl implements EventBus {
     @Override
     public Future<List<Object>> publishAsync(Object event) {
         Collection<Listener> listeners = getListeners(event);
+        if (listeners.isEmpty()) {
+            return Futures.success(ImmutableList.of());
+        }
+
         return worker.submit(() -> doDispatch(event, listeners, true));
     }
 
     @Override
     public List<Object> publishSync(Object event) {
         Collection<Listener> listeners = getListeners(event);
+        if (listeners.isEmpty()) {
+            return ImmutableList.of();
+        }
+
         return doDispatch(event, listeners, false);
     }
 
