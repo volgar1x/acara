@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.github.blackrush.acara:acara-core:1.3'
+  compile 'com.github.blackrush.acara:acara-core:1.3.1'
 }
 ```
 
