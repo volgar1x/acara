@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 /**
  * {@inheritDoc}
  */
-public final class SuperviseListenerMetadataLookup implements ListenerMetadataLookup {
+public final class SuperviseListenerMetadataLookup extends ClassListenerMetadataLookup {
 
     /**
      * A shareable instance of {@link com.github.blackrush.acara.SuperviseListenerMetadataLookup}
@@ -70,11 +70,11 @@ public final class SuperviseListenerMetadataLookup implements ListenerMetadataLo
      * {@inheritDoc}
      */
     @Override
-    public Stream<ListenerMetadata> lookup(Object listener) {
-        return StreamUtils.traverseInheritance(listener.getClass())
+    public Stream<ListenerMetadata> lookupClass(Class<?> klass) {
+        return StreamUtils.traverseInheritance(klass)
                 .flatMap(it -> Stream.of(it.getDeclaredMethods()))
                 .filter(this::checkSuperviseListenerValidity)
-                .map(m -> new ListenerMetadata(listener.getClass(), m, new SupervisedEventMetadata(
+                .map(m -> new ListenerMetadata(klass, m, new SupervisedEventMetadata(
                         getHandledCauseClass(m),
                         getHandledInitialEventClass(m).orElse(Object.class)
                 )));
