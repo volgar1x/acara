@@ -170,21 +170,6 @@ public class EventBusImplTest {
     }
 
     @Test
-    public void testPublishAndSuperviseStop() throws Exception {
-        // given
-        SomeEvent event = new SomeEvent("publish-and-supervise-stop");
-        ThrowingListener listener1 = new ThrowingListener();
-        SomeListener listener2 = new SomeListener();
-
-        // when
-        when(supervisor.handle(any(Error.class))).thenReturn(SupervisorDirective.STOP);
-        List<Object> answers = eventBus.subscribe(listener1).subscribe(listener2).publishSync(event);
-
-        // then
-        assertTrue("answers list is empty", answers.isEmpty());
-    }
-
-    @Test
     public void testPublishAndSuperviseNewEvent() throws Exception {
         // given
         class HandleSupervisedEventListener {

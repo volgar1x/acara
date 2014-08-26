@@ -81,7 +81,6 @@ final class EventBusImpl implements EventBus {
         List<Either<Object, Throwable>> unsupervised = stream.collect(Collectors.toList());
         List<Object> supervised = new ArrayList<>(unsupervised.size());
 
-        loop:
         for (Either<Object, Throwable> e : unsupervised) {
             if (e.isLeft()) {
                 if (e.left() != unit()) {
@@ -93,10 +92,6 @@ final class EventBusImpl implements EventBus {
                     case ESCALATE:
                         throw Throwables.propagate(cause);
 
-                    case STOP:
-                        logger.warn("uncaught exception", cause);
-                        break loop;
-
                     case IGNORE:
                         logger.warn("uncaught exception", cause);
                         break;
@@ -104,9 +99,6 @@ final class EventBusImpl implements EventBus {
                     case NEW_EVENT:
                         toDispatch.add(cause);
                         break;
-
-                    default:
-                        throw new Error();
                 }
             }
         }

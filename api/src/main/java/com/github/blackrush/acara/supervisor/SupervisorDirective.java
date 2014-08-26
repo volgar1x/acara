@@ -10,11 +10,6 @@ public enum SupervisorDirective {
     ESCALATE,
 
     /**
-     * Stop the dispatch, and ignore remaining listeners. Logs a warning anyway.
-     */
-    STOP,
-
-    /**
      * Simply ignore exception, and continue to dispatch. Logs a warning anyway.
      */
     IGNORE,
