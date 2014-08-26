@@ -43,7 +43,7 @@ public final class CoreEventBus {
      */
     public static EventBus create(Worker worker, boolean defaultAsync) {
         return create(worker, defaultAsync,
-                StdListenerMetadataLookup.SHARED,
+                StdListenerMetadataLookup.newDefault(),
                 StdDispatcher.LOOKUP,
                 StdSupervisor.SHARED,
                 StdEventMetadata.LOOKUP,
@@ -97,7 +97,7 @@ public final class CoreEventBus {
         private Builder() {
             this.worker = null;
             this.defaultAsync = true;
-            this.metadataLookup = StdListenerMetadataLookup.SHARED;
+            this.metadataLookup = StdListenerMetadataLookup.newDefault();
             this.dispatcherLookup = StdDispatcher.LOOKUP;
             this.supervisor = StdSupervisor.SHARED;
             this.eventMetadataLookup = StdEventMetadata.LOOKUP;

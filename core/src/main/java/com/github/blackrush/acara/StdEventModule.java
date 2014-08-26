@@ -11,7 +11,7 @@ public final class StdEventModule implements EventModule {
     @Override
     public EventBusBuilder configure(EventBusBuilder builder) {
         return builder
-                .addMetadataLookup(StdListenerMetadataLookup.SHARED)
+                .addMetadataLookup(StdListenerMetadataLookup.newDefault())
                 .addDispatcherLookup(StdDispatcher.LOOKUP)
                 .addEventMetadataLookup(StdEventMetadata.LOOKUP)
                 ;

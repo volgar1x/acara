@@ -12,11 +12,11 @@ import java.util.stream.Stream;
  * @see com.github.blackrush.acara.Listener
  */
 public final class StdListenerMetadataLookup extends ClassListenerMetadataLookup {
-    /**
-     * A shareable {@link com.github.blackrush.acara.StdListenerMetadataLookup} instance
-     */
-    public static final StdListenerMetadataLookup SHARED = new StdListenerMetadataLookup(
+
+    public static StdListenerMetadataLookup newDefault() {
+        return new StdListenerMetadataLookup(
             LoggerFactory.getLogger(StdListenerMetadataLookup.class));
+    }
 
     private final Logger log;
 
