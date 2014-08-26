@@ -82,12 +82,11 @@ final class EventBusImpl implements EventBus {
         List<Object> supervised = new ArrayList<>(unsupervised.size());
 
         for (Either<Object, Throwable> e : unsupervised) {
-            if (e.isLeft()) {
-                if (e.left() != unit()) {
-                    supervised.add(e.left());
+            e.ifLeft(left -> {
+                if (left != unit()) {
+                    supervised.add(left);
                 }
-            } else {
-                Throwable cause = e.right();
+            }).ifRight(cause -> {
                 switch (supervisor.handle(cause)) {
                     case ESCALATE:
                         throw Throwables.propagate(cause);
@@ -100,7 +99,7 @@ final class EventBusImpl implements EventBus {
                         toDispatch.add(cause);
                         break;
                 }
-            }
+            });
         }
 
         return supervised;
