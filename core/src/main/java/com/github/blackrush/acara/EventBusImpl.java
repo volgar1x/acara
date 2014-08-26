@@ -114,14 +114,15 @@ final class EventBusImpl implements EventBus {
         return supervised;
     }
 
-    List<Object> doDispatch(Object event, Collection<Listener> listeners, boolean async) {
+    List<Object> doDispatch(Object event, Collection<Listener> listeners) {
         Stream<Either<Object, Throwable>> answers = dispatch(listeners.stream(), event);
 
         List<Throwable> toDispatch = new ArrayList<>();
         List<Object> supervised = supervise(answers, toDispatch);
 
-        toDispatch.stream().map(cause -> new SupervisedEvent(event, cause))
-                .forEach(async ? this::publishAsync : this::publishSync);
+        for (Throwable throwable : toDispatch) {
+            publishSync(new SupervisedEvent(event, throwable));
+        }
 
         return supervised;
     }
@@ -155,13 +156,13 @@ final class EventBusImpl implements EventBus {
     @Override
     public Future<List<Object>> publishAsync(Object event) {
         Collection<Listener> listeners = getListeners(event);
-        return worker.submit(() -> doDispatch(event, listeners, true));
+        return worker.submit(() -> doDispatch(event, listeners));
     }
 
     @Override
     public List<Object> publishSync(Object event) {
         Collection<Listener> listeners = getListeners(event);
-        return doDispatch(event, listeners, false);
+        return doDispatch(event, listeners);
     }
 
     @Override
