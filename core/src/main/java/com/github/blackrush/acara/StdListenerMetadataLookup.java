@@ -11,7 +11,7 @@ import java.util.stream.Stream;
  * Only lookup for {@link com.github.blackrush.acara.Listener} listeners.
  * @see com.github.blackrush.acara.Listener
  */
-public class StdListenerMetadataLookup implements ListenerMetadataLookup {
+public final class StdListenerMetadataLookup extends ClassListenerMetadataLookup {
     /**
      * A shareable {@link com.github.blackrush.acara.StdListenerMetadataLookup} instance
      */
@@ -62,17 +62,12 @@ public class StdListenerMetadataLookup implements ListenerMetadataLookup {
         return new StdEventMetadata(method.getParameterTypes()[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Stream<ListenerMetadata> lookup(Object listener) {
-        Class<?> listenerClass = listener.getClass();
-        
-        return StreamUtils.traverseInheritance(listenerClass)
+    protected Stream<ListenerMetadata> lookupClass(Class<?> klass) {
+        return StreamUtils.traverseInheritance(klass)
                 .flatMap(StdListenerMetadataLookup::methodStream)
                 .filter(this::isValidListenerOrWarn)
-                .map(method -> new ListenerMetadata(listenerClass, method, buildEventMetadata(method)))
+                .map(method -> new ListenerMetadata(klass, method, buildEventMetadata(method)))
                 ;
     }
 }
