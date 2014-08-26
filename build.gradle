@@ -10,7 +10,7 @@ buildscript {
 }
 
 allprojects {
-    version = '1.4-alpha2'
+    version = '1.4-SNAPSHOT'
     group = 'com.github.blackrush.acara'
 }
 
