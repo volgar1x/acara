@@ -86,13 +86,33 @@ public final class CoreEventBus {
      *     </table>
      */
     public static class Builder implements EventBusBuilder {
-        private Worker worker;
-        private boolean defaultAsync = true;
-        private ListenerMetadataLookup metadataLookup = StdListenerMetadataLookup.SHARED;
-        private DispatcherLookup dispatcherLookup = StdDispatcher.LOOKUP;
-        private Supervisor supervisor = StdSupervisor.SHARED;
-        private EventMetadataLookup eventMetadataLookup = StdEventMetadata.LOOKUP;
-        private Logger logger = LoggerFactory.getLogger(EventBusImpl.class);
+        private final Worker worker;
+        private final boolean defaultAsync;
+        private final ListenerMetadataLookup metadataLookup;
+        private final DispatcherLookup dispatcherLookup;
+        private final Supervisor supervisor;
+        private final EventMetadataLookup eventMetadataLookup;
+        private final Logger logger;
+
+        private Builder() {
+            this.worker = null;
+            this.defaultAsync = true;
+            this.metadataLookup = StdListenerMetadataLookup.SHARED;
+            this.dispatcherLookup = StdDispatcher.LOOKUP;
+            this.supervisor = StdSupervisor.SHARED;
+            this.eventMetadataLookup = StdEventMetadata.LOOKUP;
+            this.logger = LoggerFactory.getLogger(EventBusImpl.class);
+        }
+
+        private Builder(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, EventMetadataLookup eventMetadataLookup, Logger logger) {
+            this.worker = worker;
+            this.defaultAsync = defaultAsync;
+            this.metadataLookup = metadataLookup;
+            this.dispatcherLookup = dispatcherLookup;
+            this.supervisor = supervisor;
+            this.eventMetadataLookup = eventMetadataLookup;
+            this.logger = logger;
+        }
 
         /**
          * Set `worker` property. Required.
@@ -100,8 +120,8 @@ public final class CoreEventBus {
          * @return the very same builder
          */
         public Builder setWorker(Worker worker) {
-            this.worker = requireNonNull(worker, "worker");
-            return this;
+            requireNonNull(worker, "worker");
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -110,8 +130,7 @@ public final class CoreEventBus {
          * @return the very same builder
          */
         public Builder isDefaultAsync(boolean defaultAsync) {
-            this.defaultAsync = defaultAsync;
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -120,8 +139,7 @@ public final class CoreEventBus {
          * @return the very same builder
          */
         public Builder setMetadataLookup(ListenerMetadataLookup metadataLookup) {
-            this.metadataLookup = metadataLookup;
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -131,8 +149,7 @@ public final class CoreEventBus {
          */
         @Override
         public Builder addMetadataLookup(ListenerMetadataLookup metadataLookup) {
-            this.metadataLookup = this.metadataLookup.concat(metadataLookup);
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -141,8 +158,7 @@ public final class CoreEventBus {
          * @return the very same builder
          */
         public Builder setDispatcherLookup(DispatcherLookup dispatcherLookup) {
-            this.dispatcherLookup = dispatcherLookup;
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -152,8 +168,7 @@ public final class CoreEventBus {
          */
         @Override
         public Builder addDispatcherLookup(DispatcherLookup dispatcherLookup) {
-            this.dispatcherLookup = dispatcherLookup.withFallback(this.dispatcherLookup);
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup.withFallback(this.dispatcherLookup), supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -163,8 +178,7 @@ public final class CoreEventBus {
          */
         @Override
         public Builder setSupervisor(Supervisor supervisor) {
-            this.supervisor = supervisor;
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -173,8 +187,7 @@ public final class CoreEventBus {
          * @return the very same builder
          */
         public Builder setEventMetadataLookup(EventMetadataLookup eventMetadataLookup) {
-            this.eventMetadataLookup = eventMetadataLookup;
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
@@ -184,8 +197,7 @@ public final class CoreEventBus {
          */
         @Override
         public Builder addEventMetadataLookup(EventMetadataLookup eventMetadataLookup) {
-            this.eventMetadataLookup = eventMetadataLookup.withFallback(this.eventMetadataLookup);
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup.withFallback(this.eventMetadataLookup), logger);
         }
 
         /**
@@ -194,17 +206,15 @@ public final class CoreEventBus {
          * @return the very same builder
          */
         public Builder setLogger(Logger logger) {
-            this.logger = logger;
-            return this;
+            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public Builder install(EventModule module) {
-            module.configure(this);
-            return this;
+        public EventBusBuilder install(EventModule module) {
+            return module.configure(this);
         }
 
         /**
