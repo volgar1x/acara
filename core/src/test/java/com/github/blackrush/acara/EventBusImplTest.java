@@ -37,7 +37,7 @@ public class EventBusImplTest {
         eventBus = new EventBusImpl(
                 Workers.wrap(Executors.newSingleThreadExecutor()),
                 false,
-                StdListenerMetadataLookup.SHARED,
+                StdListenerMetadataLookup.newDefault(),
                 StdDispatcher.LOOKUP,
                 supervisor,
                 StdEventMetadata.LOOKUP,

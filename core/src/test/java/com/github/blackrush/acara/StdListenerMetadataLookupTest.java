@@ -15,7 +15,7 @@ public class StdListenerMetadataLookupTest {
 
     @Before
     public void setUp() throws Exception {
-        lookup = StdListenerMetadataLookup.SHARED;
+        lookup = StdListenerMetadataLookup.newDefault();
     }
 
     @Test

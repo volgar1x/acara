@@ -12,10 +12,9 @@ import java.util.stream.Stream;
  */
 public final class SuperviseListenerMetadataLookup extends ClassListenerMetadataLookup {
 
-    /**
-     * A shareable instance of {@link com.github.blackrush.acara.SuperviseListenerMetadataLookup}
-     */
-    public static final SuperviseListenerMetadataLookup SHARED = new SuperviseListenerMetadataLookup();
+    public static SuperviseListenerMetadataLookup newDefault() {
+        return new SuperviseListenerMetadataLookup();
+    }
 
     /**
      * Test if given {@link java.lang.reflect.Method} is a {@link com.github.blackrush.acara.Supervise} listener.

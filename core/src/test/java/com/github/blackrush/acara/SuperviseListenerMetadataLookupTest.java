@@ -88,7 +88,7 @@ public class SuperviseListenerMetadataLookupTest {
         EventBus eventBus = CoreEventBus.builder()
                 .setWorker(Workers.wrap(MoreExecutors.sameThreadExecutor()))
                 .isDefaultAsync(false)
-                .setMetadataLookup(SuperviseListenerMetadataLookup.SHARED)
+                .setMetadataLookup(SuperviseListenerMetadataLookup.newDefault())
                 .setDispatcherLookup(SuperviseDispatcher.LOOKUP)
                 .setEventMetadataLookup(SupervisedEventMetadata.LOOKUP)
                 .build();

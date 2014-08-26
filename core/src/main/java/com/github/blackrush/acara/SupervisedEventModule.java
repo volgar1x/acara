@@ -11,7 +11,7 @@ public final class SupervisedEventModule implements EventModule {
     @Override
     public EventBusBuilder configure(EventBusBuilder builder) {
         return builder
-                .addMetadataLookup(SuperviseListenerMetadataLookup.SHARED)
+                .addMetadataLookup(SuperviseListenerMetadataLookup.newDefault())
                 .addDispatcherLookup(SuperviseDispatcher.LOOKUP)
                 .addEventMetadataLookup(SupervisedEventMetadata.LOOKUP)
                 ;
