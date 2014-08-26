@@ -149,7 +149,7 @@ public final class CoreEventBus {
          */
         @Override
         public Builder addMetadataLookup(ListenerMetadataLookup metadataLookup) {
-            return new Builder(worker, defaultAsync, metadataLookup, dispatcherLookup, supervisor, eventMetadataLookup, logger);
+            return new Builder(worker, defaultAsync, this.metadataLookup.concat(metadataLookup), dispatcherLookup, supervisor, eventMetadataLookup, logger);
         }
 
         /**
