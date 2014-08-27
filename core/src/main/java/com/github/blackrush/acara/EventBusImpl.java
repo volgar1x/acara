@@ -38,6 +38,16 @@ final class EventBusImpl implements EventBus {
         }
     }
 
+    class EventWithListeners {
+        final Object event;
+        final Collection<Listener> listeners;
+
+        EventWithListeners(Object event, Collection<Listener> listeners) {
+            this.event = event;
+            this.listeners = listeners;
+        }
+    }
+
     private final Worker                 worker;
     private final boolean                defaultAsync;
     private final ListenerMetadataLookup metadataLookup;
@@ -67,7 +77,7 @@ final class EventBusImpl implements EventBus {
     Future<List<Object>> doDispatch(Object event, Collection<Listener> listeners) {
         List<Object> immediate = new LinkedList<>();
         List<Future<Object>> futures = new LinkedList<>();
-        List<Throwable> failures = new LinkedList<>();
+        List<SupervisedEvent> supervisedEvents = new LinkedList<>();
 
         for (Listener listener : listeners) {
             Either<Object, Throwable> result = listener.dispatcher.dispatch(listener.instance, event);
@@ -92,13 +102,13 @@ final class EventBusImpl implements EventBus {
                         break;
 
                     case NEW_EVENT:
-                        failures.add(failure);
+                        supervisedEvents.add(new SupervisedEvent(event, failure));
                         break;
                 }
             }
         }
 
-        failures.forEach(failure -> publishSync(new SupervisedEvent(event, failure)));
+        getMultipleListeners(supervisedEvents).forEach(x -> doDispatch(x.event, x.listeners));
 
         return Futures.collect(futures).map(results -> {
             immediate.addAll(results);
@@ -106,11 +116,11 @@ final class EventBusImpl implements EventBus {
         });
     }
 
-    Collection<Listener> readListeners(Stream<EventMetadata> meta) {
-        return meta.flatMap(it -> listeners.get(it).stream()).collect(Collectors.toList());
+    Stream<Listener> readListeners(Stream<EventMetadata> meta) {
+        return meta.flatMap(it -> listeners.get(it).stream());
     }
 
-    Collection<Listener> getListeners(Object event) {
+    List<Listener> getListeners(Object event) {
         EventMetadata meta = eventMetadataLookup.lookup(event)
                 .orElseThrow(() -> new IllegalStateException("couldn't lookup metadata for event " + event))
                 ;
@@ -119,14 +129,38 @@ final class EventBusImpl implements EventBus {
         if (parents.isEmpty()) return ImmutableList.of();
 
         long stamp = lock.tryOptimisticRead();
-        Collection<Listener> res = readListeners(parents.stream());
+        List<Listener> res = readListeners(parents.stream()).collect(Collectors.toList());
         if (lock.validate(stamp)) {
             return res;
         }
 
         stamp = lock.readLock();
         try {
-            return readListeners(parents.stream());
+            return readListeners(parents.stream()).collect(Collectors.toList());
+        } finally {
+            lock.unlockRead(stamp);
+        }
+    }
+
+    List<EventWithListeners> getMultipleListeners(List<?> events) {
+        if (events.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        long stamp = lock.readLock();
+        try {
+            List<EventWithListeners> result = new LinkedList<>();
+            for (Object event : events) {
+                List<Listener> listeners =
+                    resolveHierarchy(eventMetadataLookup.lookup(event).get())
+                        .flatMap(meta -> this.listeners.get(meta).stream())
+                        .collect(Collectors.toList());
+
+                if (!listeners.isEmpty()) {
+                    result.add(new EventWithListeners(event, listeners));
+                }
+            }
+            return result;
         } finally {
             lock.unlockRead(stamp);
         }
