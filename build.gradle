@@ -68,10 +68,10 @@ subprojects {
 
         repositories {
             maven {
-                url project.ext.acara.url
+                url acaraUrl
                 credentials {
-                    username = project.ext.acara.username
-                    password = project.ext.acara.username
+                    username = acaraUsername
+                    password = acaraPassword
                 }
             }
         }
