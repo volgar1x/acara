@@ -4,9 +4,7 @@ import com.github.blackrush.acara.supervisor.Supervisor;
 import com.github.blackrush.acara.supervisor.SupervisorDirective;
 import com.github.blackrush.acara.supervisor.event.SupervisedEvent;
 import org.fungsi.Unit;
-import org.fungsi.concurrent.Promise;
-import org.fungsi.concurrent.Promises;
-import org.fungsi.concurrent.Workers;
+import org.fungsi.concurrent.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
@@ -19,6 +17,7 @@ import java.util.stream.Collectors;
 import static java.time.Duration.ofMillis;
 import static org.fungsi.Unit.unit;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -307,5 +306,24 @@ public class EventBusImplTest {
 
         // then
         assertTrue("eventBus listeners is empty", eventBus.listeners.isEmpty());
+    }
+
+    @Test
+    public void publish_flatteningFuture() throws Exception {
+        // given
+        Object listener = new Object() {
+            @Listener
+            public Future<String> someEvent(SomeEvent evt) {
+                return Futures.success(evt.someValue);
+            }
+        };
+        SomeEvent event = new SomeEvent("flatening-future");
+
+        // when
+        List<Object> answers = eventBus.subscribe(listener).publishSync(event);
+
+        // then
+        assertThat("answers", answers, hasItem(event.someValue));
+        assertThat("answers size", answers.size(), equalTo(1));
     }
 }
