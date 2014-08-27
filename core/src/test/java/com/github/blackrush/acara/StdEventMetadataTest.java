@@ -21,7 +21,7 @@ public class StdEventMetadataTest {
     @Test
     public void testDummyEventParent() throws Exception {
         // given
-        StdEventMetadata meta = new StdEventMetadata(SomeEvent.class);
+        StdEventMetadata meta = new StdEventMetadata(SomeEvent.class, StdEventMetadata.LOOKUP);
 
         // when
         List<Class<?>> parent = meta.getParent().map(EventMetadata::getRawEventClass).collect(Collectors.toList());
@@ -33,7 +33,7 @@ public class StdEventMetadataTest {
     @Test
     public void testExtendingEventParent() throws Exception {
         // given
-        StdEventMetadata meta = new StdEventMetadata(ChildEvent.class);
+        StdEventMetadata meta = new StdEventMetadata(ChildEvent.class, StdEventMetadata.LOOKUP);
 
         // when
         List<Class<?>> parent = meta.getParent().map(EventMetadata::getRawEventClass).collect(Collectors.toList());
@@ -46,7 +46,7 @@ public class StdEventMetadataTest {
     @Test
     public void testImplementingEventParent() throws Exception {
         // given
-        StdEventMetadata meta = new StdEventMetadata(ImplementingEvent.class);
+        StdEventMetadata meta = new StdEventMetadata(ImplementingEvent.class, StdEventMetadata.LOOKUP);
 
         // when
         List<Class<?>> parent = meta.getParent().map(EventMetadata::getRawEventClass).collect(Collectors.toList());
@@ -59,7 +59,7 @@ public class StdEventMetadataTest {
     @Test
     public void testBothEventParent() throws Exception {
         // given
-        StdEventMetadata meta = new StdEventMetadata(BothEvent.class);
+        StdEventMetadata meta = new StdEventMetadata(BothEvent.class, StdEventMetadata.LOOKUP);
 
         // when
         List<Class<?>> parent = meta.getParent().map(EventMetadata::getRawEventClass).collect(Collectors.toList());

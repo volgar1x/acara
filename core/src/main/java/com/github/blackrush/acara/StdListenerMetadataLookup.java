@@ -59,7 +59,7 @@ public final class StdListenerMetadataLookup extends ClassListenerMetadataLookup
     }
 
     EventMetadata buildEventMetadata(Method method) {
-        return new StdEventMetadata(method.getParameterTypes()[0]);
+        return new StdEventMetadata(method.getParameterTypes()[0], StdEventMetadata.LOOKUP);
     }
 
     @Override

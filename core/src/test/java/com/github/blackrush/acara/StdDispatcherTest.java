@@ -20,7 +20,7 @@ public class StdDispatcherTest {
         ListenerMetadata metadata = new ListenerMetadata(
                 SomeListener.class,
                 SomeListener.class.getDeclaredMethod("someListener", SomeEvent.class),
-                new StdEventMetadata(SomeEvent.class)
+                new StdEventMetadata(SomeEvent.class, StdEventMetadata.LOOKUP)
         );
         StdDispatcher dispatcher = new StdDispatcher(metadata);
 

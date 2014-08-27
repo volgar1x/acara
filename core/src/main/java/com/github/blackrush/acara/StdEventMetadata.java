@@ -3,8 +3,8 @@ package com.github.blackrush.acara;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.github.blackrush.acara.StreamUtils.asStream;
 import static com.github.blackrush.acara.StreamUtils.directParent;
-import static java.util.Objects.requireNonNull;
 
 /**
  * {@inheritDoc}
@@ -14,16 +14,40 @@ public final class StdEventMetadata implements EventMetadata {
     /**
      * Always return a new {@link com.github.blackrush.acara.StdEventMetadata}
      */
-    public static final EventMetadataLookup LOOKUP = event -> Optional.of(new StdEventMetadata(event.getClass()));
+    public static final ClassEventMetadataLookup LOOKUP = new ClassEventMetadataLookup() {
+        @Override
+        public Optional<EventMetadata> lookupClass(Class<?> klass) {
+            return Optional.of(new StdEventMetadata(klass, this));
+        }
+    };
+
+    final static class CachingLookup extends CachingEventMetadataLookup implements ClassEventMetadataLookup {
+        @Override
+        public Optional<EventMetadata> lookupClass(Class<?> klass) {
+            return Optional.of(new StdEventMetadata(klass, this));
+        }
+
+        @Override
+        protected Optional<EventMetadata> lookup0(Object evt) {
+            return lookupClass(evt.getClass());
+        }
+    }
+
+    public static EventMetadataLookup createCachingLookup() {
+        return new CachingLookup();
+    }
 
     private final Class<?> eventClass;
+    private final ClassEventMetadataLookup lookup;
 
     /**
      * Default constructor.
      * @param eventClass non-null event's class
+     * @param lookup non-null event metadata lookup
      */
-    public StdEventMetadata(Class<?> eventClass) {
-        this.eventClass = requireNonNull(eventClass, "eventClass");
+    public StdEventMetadata(Class<?> eventClass, ClassEventMetadataLookup lookup) {
+        this.eventClass = eventClass;
+        this.lookup = lookup;
     }
 
     /**
@@ -39,7 +63,7 @@ public final class StdEventMetadata implements EventMetadata {
      */
     @Override
     public Stream<EventMetadata> getParent() {
-        return directParent(eventClass, Object.class).map(StdEventMetadata::new);
+        return directParent(eventClass, Object.class).flatMap(parent -> asStream(lookup.lookupClass(parent)));
     }
 
     /**
