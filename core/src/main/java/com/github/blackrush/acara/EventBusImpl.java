@@ -12,12 +12,10 @@ import org.fungsi.Throwables;
 import org.fungsi.concurrent.Future;
 import org.fungsi.concurrent.Futures;
 import org.fungsi.concurrent.Worker;
+import org.fungsi.function.UnsafeFunction;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -40,16 +38,16 @@ final class EventBusImpl implements EventBus {
         }
     }
 
-    final Worker                 worker;
-    final boolean                defaultAsync;
-    final ListenerMetadataLookup metadataLookup;
-    final DispatcherLookup       dispatcherLookup;
-    final Supervisor             supervisor;
-    final EventMetadataLookup    eventMetadataLookup;
-    final Logger                 logger;
+    private final Worker                 worker;
+    private final boolean                defaultAsync;
+    private final ListenerMetadataLookup metadataLookup;
+    private final DispatcherLookup       dispatcherLookup;
+    private final Supervisor             supervisor;
+    private final EventMetadataLookup    eventMetadataLookup;
+    private final Logger                 logger;
 
     final ListMultimap<EventMetadata, Listener> listeners = LinkedListMultimap.create();
-    final StampedLock lock = new StampedLock();
+    private final StampedLock lock = new StampedLock();
 
     EventBusImpl(Worker worker, boolean defaultAsync, ListenerMetadataLookup metadataLookup, DispatcherLookup dispatcherLookup, Supervisor supervisor, EventMetadataLookup eventMetadataLookup, Logger logger) {
         this.worker              = requireNonNull(worker, "worker");
@@ -61,61 +59,51 @@ final class EventBusImpl implements EventBus {
         this.logger              = requireNonNull(logger, "logger");
     }
 
-    static Stream<Either<Object, Throwable>> dispatch(Stream<Listener> listeners, Object event) {
-        return listeners.map(listener -> {
-            Either<Object, Throwable> answer = listener.dispatcher.dispatch(listener.instance, event);
-
-            if (listener.metadata.getListenerMethod().getReturnType() == void.class) {
-                return answer.leftMap(x -> unit());
-            }
-
-            return answer;
-        });
-    }
-
-    static Stream<EventMetadata> resolveHierarchy(EventMetadata lowestEvent) {
+    private static Stream<EventMetadata> resolveHierarchy(EventMetadata lowestEvent) {
         return StreamUtils.collect(Stream.of(lowestEvent), EventMetadata::getParent).distinct();
     }
 
-    List<Object> supervise(Stream<Either<Object, Throwable>> stream, List<Throwable> toDispatch) {
-        List<Either<Object, Throwable>> unsupervised = stream.collect(Collectors.toList());
-        List<Object> supervised = new ArrayList<>(unsupervised.size());
+    @SuppressWarnings("unchecked")
+    Future<List<Object>> doDispatch(Object event, Collection<Listener> listeners) {
+        List<Object> immediate = new LinkedList<>();
+        List<Future<Object>> futures = new LinkedList<>();
+        List<Throwable> failures = new LinkedList<>();
 
-        for (Either<Object, Throwable> e : unsupervised) {
-            e.ifLeft(left -> {
-                if (left != unit()) {
-                    supervised.add(left);
+        for (Listener listener : listeners) {
+            Either<Object, Throwable> result = listener.dispatcher.dispatch(listener.instance, event);
+
+            if (result.isLeft()) {
+                Object o = result.left();
+                if (o != null && o != unit()) {
+                    if (o instanceof Future) {
+                        futures.add((Future<Object>) o);
+                    } else {
+                        immediate.add(o);
+                    }
                 }
-            }).ifRight(cause -> {
-                switch (supervisor.handle(cause)) {
+            } else {
+                Throwable failure = result.right();
+                switch (supervisor.handle(failure)) {
                     case ESCALATE:
-                        throw Throwables.propagate(cause);
+                        throw Throwables.propagate(failure);
 
                     case IGNORE:
-                        logger.warn("uncaught exception", cause);
+                        logger.warn("uncaught exception", failure);
                         break;
 
                     case NEW_EVENT:
-                        toDispatch.add(cause);
+                        failures.add(failure);
                         break;
                 }
-            });
+            }
         }
 
-        return supervised;
-    }
+        failures.forEach(failure -> publishSync(new SupervisedEvent(event, failure)));
 
-    List<Object> doDispatch(Object event, Collection<Listener> listeners) {
-        Stream<Either<Object, Throwable>> answers = dispatch(listeners.stream(), event);
-
-        List<Throwable> toDispatch = new ArrayList<>();
-        List<Object> supervised = supervise(answers, toDispatch);
-
-        for (Throwable throwable : toDispatch) {
-            publishSync(new SupervisedEvent(event, throwable));
-        }
-
-        return supervised;
+        return Futures.collect(futures).map(results -> {
+            immediate.addAll(results);
+            return immediate;
+        });
     }
 
     Collection<Listener> readListeners(Stream<EventMetadata> meta) {
@@ -147,13 +135,13 @@ final class EventBusImpl implements EventBus {
     @Override
     public Future<List<Object>> publishAsync(Object event) {
         Collection<Listener> listeners = getListeners(event);
-        return worker.submit(() -> doDispatch(event, listeners));
+        return worker.submit(() -> doDispatch(event, listeners)).flatMap(UnsafeFunction.identity());
     }
 
     @Override
     public List<Object> publishSync(Object event) {
         Collection<Listener> listeners = getListeners(event);
-        return doDispatch(event, listeners);
+        return doDispatch(event, listeners).get();
     }
 
     @Override
