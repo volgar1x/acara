@@ -5,7 +5,6 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
     }
 }
 
@@ -67,22 +66,16 @@ subprojects {
                 artifactId = "acara-${project.name}"
             }
         }
-    }
 
-    if (project.hasProperty('bintrayUser')) {
-        bintray {
-            user = bintrayUser
-            key = bintrayKey
-            publications = ['mavenJava']
-
-            pkg {
-                repo = 'maven'
-                name = 'acara'
-                licenses = ['MIT']
+        repositories {
+            maven {
+                url project.ext.acara.url
+                credentials {
+                    username = project.ext.acara.username
+                    password = project.ext.acara.username
+                }
             }
         }
-
-        bintrayUpload.dependsOn publishToMavenLocal
     }
 }
 
