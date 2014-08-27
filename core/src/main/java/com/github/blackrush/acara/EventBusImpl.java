@@ -74,7 +74,7 @@ final class EventBusImpl implements EventBus {
     }
 
     @SuppressWarnings("unchecked")
-    Future<List<Object>> doDispatch(Object event, Collection<Listener> listeners) {
+    Future<List<Object>> doDispatch(Object event, Collection<Listener> listeners, boolean supervise) {
         List<Object> immediate = new LinkedList<>();
         List<Future<Object>> futures = new LinkedList<>();
         List<SupervisedEvent> supervisedEvents = new LinkedList<>();
@@ -93,6 +93,10 @@ final class EventBusImpl implements EventBus {
                 }
             } else {
                 Throwable failure = result.right();
+                if (!supervise) {
+                    throw Throwables.propagate(failure);
+                }
+
                 switch (supervisor.handle(failure)) {
                     case ESCALATE:
                         throw Throwables.propagate(failure);
@@ -108,7 +112,7 @@ final class EventBusImpl implements EventBus {
             }
         }
 
-        getMultipleListeners(supervisedEvents).forEach(x -> doDispatch(x.event, x.listeners));
+        getMultipleListeners(supervisedEvents).forEach(x -> doDispatch(x.event, x.listeners, false));
 
         return Futures.collect(futures).map(results -> {
             immediate.addAll(results);
@@ -169,13 +173,13 @@ final class EventBusImpl implements EventBus {
     @Override
     public Future<List<Object>> publishAsync(Object event) {
         Collection<Listener> listeners = getListeners(event);
-        return worker.submit(() -> doDispatch(event, listeners)).flatMap(UnsafeFunction.identity());
+        return worker.submit(() -> doDispatch(event, listeners, true)).flatMap(UnsafeFunction.identity());
     }
 
     @Override
     public List<Object> publishSync(Object event) {
         Collection<Listener> listeners = getListeners(event);
-        return doDispatch(event, listeners).get();
+        return doDispatch(event, listeners, true).get();
     }
 
     @Override
