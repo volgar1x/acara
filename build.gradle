@@ -9,7 +9,7 @@ buildscript {
 }
 
 allprojects {
-zsh:1: command not found: q
+    version = '1.4-SNAPSHOT'
     group = 'com.github.blackrush.acara'
 }
 
