@@ -12,7 +12,6 @@ import org.fungsi.Throwables;
 import org.fungsi.concurrent.Future;
 import org.fungsi.concurrent.Futures;
 import org.fungsi.concurrent.Worker;
-import org.fungsi.function.UnsafeFunction;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -173,7 +172,7 @@ final class EventBusImpl implements EventBus {
     @Override
     public Future<List<Object>> publishAsync(Object event) {
         Collection<Listener> listeners = getListeners(event);
-        return worker.submit(() -> doDispatch(event, listeners, true)).flatMap(UnsafeFunction.identity());
+        return worker.execute(() -> doDispatch(event, listeners, true));
     }
 
     @Override
