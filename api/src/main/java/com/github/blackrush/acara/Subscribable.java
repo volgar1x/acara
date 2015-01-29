@@ -13,24 +13,12 @@ public interface Subscribable {
      * @param listener a non-null listener
      * @return this very same instance
      */
-    Subscribable subscribe(Object listener);
+    Subscription subscribe(Object listener);
 
     /**
      * Subscribe multiple listeners.
      * @param listeners a non-null collection of non-null listeners
      * @return this very same instance
      */
-    Subscribable subscribeMany(Collection<?> listeners);
-
-    /**
-     * Unsubscribe a listener.
-     * @param listener a non-null listener
-     */
-    void unsubscribe(Object listener);
-
-    /**
-     * Unsubscribe multiple listeners.
-     * @param listeners a non-null collection of non-null listeners
-     */
-    void unsubscribeMany(Collection<?> listeners);
+    Subscription subscribeMany(Collection<?> listeners);
 }

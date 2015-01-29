@@ -1,6 +1,10 @@
 allprojects {
     version = '2.0-SNAPSHOT'
     group = 'com.github.blackrush.acara'
+
+    ext {
+        fungsiVersion = '1.2.+'
+    }
 }
 
 subprojects {
