@@ -8,6 +8,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface Listener {
+public @interface Listen {
     boolean disabled() default false;
 }

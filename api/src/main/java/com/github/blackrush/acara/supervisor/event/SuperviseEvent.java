@@ -1,10 +1,10 @@
 package com.github.blackrush.acara.supervisor.event;
 
-public final class SupervisedEvent {
+public final class SuperviseEvent {
     private final Object initialEvent;
     private final Throwable cause;
 
-    public SupervisedEvent(Object initialEvent, Throwable cause) {
+    public SuperviseEvent(Object initialEvent, Throwable cause) {
         this.initialEvent = initialEvent;
         this.cause = cause;
     }
