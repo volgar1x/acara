@@ -32,3 +32,4 @@ application.json
 application.properties
 gradle.properties
 *.conf
+*.swp

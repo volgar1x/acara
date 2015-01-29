@@ -1,0 +1,55 @@
+apply plugin: 'maven-publish'
+
+repositories {
+	mavenCentral()
+	maven { url 'http://dl.bintray.com/blackrush/maven' }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+artifacts {
+	archives sourcesJar, javadocJar
+}
+
+ext {
+	acaraUrl = project.hasProperty('acaraUrl') ? acaraUrl : ''
+	acaraUsername = project.hasProperty('acaraUsername') ? acaraUsername : ''
+	acaraPassword = project.hasProperty('acaraPassword') ? acaraPassword : ''
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+
+			artifact sourcesJar {
+				classifier "sources"
+			}
+
+			artifact javadocJar {
+				classifier "javadoc"
+			}
+
+			artifactId = "acara-${project.name}"
+		}
+	}
+
+	repositories {
+		maven {
+			url acaraUrl
+			credentials {
+				username = acaraUsername
+				password = acaraPassword
+			}
+		}
+	}
+}
+
