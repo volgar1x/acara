@@ -1,5 +1,6 @@
 package com.github.blackrush.acara;
 
+import com.google.common.collect.ImmutableList;
 import org.fungsi.concurrent.Future;
 import org.fungsi.concurrent.Futures;
 import org.fungsi.concurrent.Worker;
@@ -31,6 +32,10 @@ final class EventBusImpl implements EventBus {
     public Future<List<Object>> publish(Object event) {
         EventMetadata metadata = eventMetadataBuilder.build(event);
         Deque<Listener> deq = listeners.get(metadata);
+        if (deq == null || deq.isEmpty()) {
+            return Futures.success(ImmutableList.of());
+        }
+
         return deq.stream()
                 .map(x -> x.dispatch(event, worker))
                 .collect(Futures.collect());
