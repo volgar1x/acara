@@ -1,21 +1,17 @@
 package com.github.blackrush.acara;
 
+import java.util.stream.Stream;
+
 @FunctionalInterface
 public interface ListenerBuilder {
     /**
      * Build the listener given its instance.
      * @param o a non-null instance
-     * @return the builded listener or null if the builder does not care
+     * @return the built listener or null if the builder does not care
      */
-    Listener build(Object o);
+    Stream<Listener> build(Object o);
 
-    default ListenerBuilder withFallback(ListenerBuilder other) {
-        return o -> {
-            Listener listener = this.build(o);
-            if (listener != null) {
-                return listener;
-            }
-            return other.build(o);
-        };
+    default ListenerBuilder concat(ListenerBuilder other) {
+        return o -> Stream.concat(this.build(o), other.build(o));
     }
 }
