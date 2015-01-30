@@ -8,9 +8,15 @@ public abstract class EventMetadata {
      */
     public abstract EventMetadata getParent();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public abstract boolean equals(Object other);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public abstract int hashCode();
 }
