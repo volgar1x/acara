@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class EventBusImplTest {
 
@@ -68,5 +68,44 @@ public class EventBusImplTest {
         assertEquals("first  number of responses", responses.size(),  1);
         assertEquals("second number of responses", responses2.size(), 0);
         assertEquals("third  number of responses", responses3.size(), 0);
+    }
+
+    @Test
+    public void testEventBubbling() throws Exception {
+        EventMetadata parent = mock(EventMetadata.class);
+        EventMetadata child = mock(EventMetadata.class);
+
+        when(child.getParent()).thenReturn(parent);
+
+        when(eventMetadataBuilder.build("parent")).thenReturn(parent);
+        when(eventMetadataBuilder.build("child")).thenReturn(child);
+
+        Object state1 = new Object();
+        Object state2 = new Object();
+
+        Listener lParent = mock(Listener.class), lChild = mock(Listener.class);
+        when(lParent.getHandledEvent()).thenReturn(parent);
+        when(lParent.dispatch(eq("parent"), any())).thenReturn(Futures.success(new Object()));
+        when(lParent.dispatch(eq("child"), any())).thenReturn(Futures.success(new Object()));
+
+        when(lChild.getHandledEvent()).thenReturn(child);
+        when(lChild.dispatch(eq("child"), any())).thenReturn(Futures.success(new Object()));
+
+        when(listenerBuilder.build(state1)).thenReturn(Stream.of(lParent, lChild));
+        when(listenerBuilder.build(state2)).thenReturn(Stream.of(lParent));
+
+        Subscription sub1 = eventBus.subscribe(state1);
+        Subscription sub2 = eventBus.subscribe(state2);
+        List<Object> responses1 = eventBus.publish("child").get();
+        List<Object> responses2 = eventBus.publish("parent").get();
+        sub1.revoke();
+        sub2.revoke();
+
+        verify(lParent, times(2)).dispatch(eq("parent"), any());
+        verify(lParent, times(1)).dispatch(eq("child"), any());
+        verify(lChild, times(1)).dispatch(eq("child"), any());
+
+        assertEquals("first number of responses", 2, responses1.size());
+        assertEquals("second number of responses", 2, responses2.size());
     }
 }
