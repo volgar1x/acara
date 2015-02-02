@@ -1,11 +1,7 @@
 package com.github.blackrush.acara;
 
-import org.fungsi.Unit;
-import org.fungsi.concurrent.Future;
-import org.fungsi.concurrent.Futures;
-import org.fungsi.concurrent.Worker;
-import org.fungsi.function.UnsafeRunnable;
-import org.fungsi.function.UnsafeSupplier;
+import com.google.common.util.concurrent.MoreExecutors;
+import org.fungsi.concurrent.Workers;
 import org.junit.Test;
 
 import java.lang.annotation.Retention;
@@ -64,7 +60,7 @@ public class JavaEventBus {
         EventBus eventBus = new EventBusImpl(
                 new JavaEventMetadataBuilder(),
                 new JavaListenerBuilder().concat(new FunkyListenerBuilder()),
-                new SameThreadWorker());
+                Workers.wrap(MoreExecutors.directExecutor()));
 
         Subscription sub = eventBus.subscribe(new TheListener());
         String msg1 = (String) eventBus.publish(new TheEvent("World")).get().get(0);
@@ -75,34 +71,4 @@ public class JavaEventBus {
         assertEquals("second message", "Wassup dawg?", msg2);
     }
 
-    class SameThreadWorker implements Worker {
-
-        @Override
-        public <T> Future<T> execute(UnsafeSupplier<Future<T>> fn) {
-            try {
-                return fn.get();
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        }
-
-        @Override
-        public <T> Future<T> submit(UnsafeSupplier<T> fn) {
-            try {
-                return Futures.success(fn.get());
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        }
-
-        @Override
-        public Future<Unit> cast(UnsafeRunnable fn) {
-            try {
-                fn.run();
-                return Futures.unit();
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        }
-    }
 }
