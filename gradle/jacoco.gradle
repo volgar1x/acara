@@ -37,7 +37,7 @@ task jacocoReport(type: JacocoReport) {
 
 coveralls {
     sourceDirs = subprojects*.sourceSets*.main*.allSource*.srcDirs*.flatten()
-    jacocoReportPath = "reports/jacoco/jacocoReport/jacocoReport.xml"
+    jacocoReportPath = "build/reports/jacoco/jacocoReport/jacocoReport.xml"
 }
 
 tasks.coveralls {
