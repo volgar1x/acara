@@ -29,5 +29,9 @@ uploadArchives {
         repository(url: "https://api.bintray.com/maven/blackrush/maven/acara") {
             authentication(userName: bintrayUser, password: bintrayKey)
         }
+
+        if (project != rootProject) {
+            pom.artifactId = "acara-${project.name}"
+        }
     }
 }
