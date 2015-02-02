@@ -1,1 +1,1 @@
-include 'api', 'core'
+include 'api', 'core', 'core-java'
