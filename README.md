@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.github.blackrush.acara:acara-core:1.3'
+  compile 'com.github.blackrush.acara:acara-core-java:2.0-alpha1'
 }
 ```
 
@@ -25,26 +25,27 @@ Examples
 
 ```java
 class SomeEvent {
-  final String someValue;
+    final String someValue;
 }
 
 class SomeListener {
-  @Listener
-  public void someEventListener(SomeEvent evt) {
-    // use SomeEvent as you want
-    // here, I just log its value
-    System.out.println(evt.someValue);
-  }
+    @Listen
+    public void someEventListener(SomeEvent evt) {
+        // use SomeEvent as you want
+        // here, I just log its value
+        System.out.println(evt.someValue);
+    }
 }
 
-Worker worker = Workers.wrap(Executors.newSingleThreadExecutor());
-EventBus eventBus = CoreEventBus.create(worker);
+EventBus eventBus = Acara.newEventBus(
+    new JavaEventMetadataBuilder(),
+    new JavaListenerBuilder(),
+    Workers.wrap(Executors.newSingleThreadExecutor()));
 
-SomeListener listener = new SomeListener();
-eventBus.subscribe(listener);
+Subscription sub = eventBus.subscribe(listener);
 try {
-  eventBus.publish(new SomeEvent("hello, world!"));
+    eventBus.publish(new SomeEvent("hello, world!"));
 } finally {
-  eventBus.unsubscribe(listener);
+    sub.revoke();
 }
 ```
