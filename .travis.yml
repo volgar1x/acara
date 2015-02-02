@@ -5,3 +5,6 @@ jdk:
 
 env:
   - TERM=dumb
+
+after_success:
+  - ./gradlew jacocoReport coveralls
