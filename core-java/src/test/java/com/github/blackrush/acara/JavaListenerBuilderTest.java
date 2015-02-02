@@ -37,7 +37,7 @@ public class JavaListenerBuilderTest {
         // then
         assertEquals("number of listeners", 1, listeners.size());
 
-        assertEquals("listener's handled event", new JavaEventMetadata(TheEvent.class),
+        assertEquals("listener's handled event", new JavaEventMetadata<>(TheEvent.class),
                                                     listeners.get(0).getHandledEvent());
     }
 }

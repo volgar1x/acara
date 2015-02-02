@@ -23,6 +23,6 @@ public class JavaEventMetadataBuilderTest {
         EventMetadata meta = builder.build(event);
 
         // then
-        assertEquals(new JavaEventMetadata(String.class), meta);
+        assertEquals(new JavaEventMetadata<>(String.class), meta);
     }
 }
