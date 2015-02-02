@@ -5,6 +5,7 @@ import org.fungsi.concurrent.Worker;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -68,6 +69,45 @@ public class EventBusImplTest {
         assertEquals("first  number of responses", responses.size(),  1);
         assertEquals("second number of responses", responses2.size(), 0);
         assertEquals("third  number of responses", responses3.size(), 0);
+    }
+
+    @Test
+    public void testSubscribeManyPublishRevoke() throws Exception {
+        Object object = new Object(), object2 = new Object(), object3 = new Object();
+
+        EventMetadata meta1 = mock(EventMetadata.class),
+                meta2 = mock(EventMetadata.class),
+                meta3 = mock(EventMetadata.class);
+
+        Listener listener1 = mock(Listener.class);
+        when(listener1.getHandledEvent()).thenReturn(meta1);
+        when(listener1.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+
+        Listener listener2 = mock(Listener.class);
+        when(listener2.getHandledEvent()).thenReturn(meta2);
+        when(listener2.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+
+        Listener listener3 = mock(Listener.class);
+        when(listener3.getHandledEvent()).thenReturn(meta3);
+        when(listener3.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+
+        when(listenerBuilder.build(object)).thenReturn(Stream.of(listener1, listener2));
+        when(listenerBuilder.build(object2)).thenReturn(Stream.of(listener1));
+        when(listenerBuilder.build(object3)).thenReturn(Stream.of(listener3));
+
+        when(eventMetadataBuilder.build("foobar")).thenReturn(meta1);
+        when(eventMetadataBuilder.build("buzz")).thenReturn(meta2);
+        when(eventMetadataBuilder.build("qux")).thenReturn(meta3);
+
+        Subscription sub = eventBus.subscribeMany(Arrays.asList(object, object2, object3));
+        List<Object> buzz = eventBus.publish("buzz").get();
+        List<Object> qux = eventBus.publish("qux").get();
+        sub.revoke();
+        List<Object> foobar = eventBus.publish("foobar").get();
+
+        assertEquals("foobar responses", 0, foobar.size());
+        assertEquals("buzz responses", 1, buzz.size());
+        assertEquals("qux responses", 1, qux.size());
     }
 
     @Test
