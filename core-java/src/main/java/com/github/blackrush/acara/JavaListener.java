@@ -5,7 +5,7 @@ import org.fungsi.concurrent.Worker;
 
 import java.lang.reflect.Method;
 
-public final class JavaListener extends Listener {
+public class JavaListener extends Listener {
     final EventMetadata signature;
     final Object state;
     final Method behavior;
@@ -23,6 +23,10 @@ public final class JavaListener extends Listener {
 
     @Override
     public Future<Object> dispatch(Object event, Worker worker) {
-        return worker.submit(() -> behavior.invoke(state, event));
+        return worker.submit(() -> this.invoke(state, behavior, event));
+    }
+
+    protected Object invoke(Object state, Method behavior, Object event) throws Throwable {
+        return behavior.invoke(state, event);
     }
 }
