@@ -28,8 +28,8 @@ public class JavaListenerBuilder implements ListenerBuilder {
             return Stream.empty();
         }
 
-        JavaEventMetadata meta = new JavaEventMetadata(method.getParameterTypes()[0]);
-        JavaListener listener = new JavaListener(meta, o, method);
+        JavaEventMetadata<?> meta = new JavaEventMetadata<>(method.getParameterTypes()[0]);
+        JavaListener<?> listener = new JavaListener<>(meta, o, method);
         return Stream.of(listener);
     }
 }
