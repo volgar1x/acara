@@ -12,7 +12,7 @@ public class JavaEventMetadataTest {
     @Test
     public void testGetParent() throws Exception {
         // given
-        JavaEventMetadata child = new JavaEventMetadata<>(Child.class);
+        JavaEventMetadata<Child> child = new JavaEventMetadata<>(Child.class);
 
         // when
         EventMetadata parent = child.getParent();
