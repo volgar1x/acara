@@ -31,13 +31,15 @@ public class JavaEventBus {
             if (!method.isAnnotationPresent(Funky.class)) {
                 return Stream.empty();
             }
-            JavaListener listener = new JavaListener(new JavaEventMetadata(FunkyEvent.class), o, method) {
+            JavaEventMetadata<FunkyEvent> meta = new JavaEventMetadata<>(FunkyEvent.class);
+
+            JavaListener<FunkyEvent> listener = new JavaListener<FunkyEvent>(meta, o, method) {
                 @Override
-                protected Object invoke(Object state, Method behavior, Object event) throws Throwable {
-                    FunkyEvent evt = (FunkyEvent) event;
-                    return behavior.invoke(state, evt.name);
+                protected Object invoke(Object state, Method behavior, FunkyEvent event) throws Throwable {
+                    return behavior.invoke(state, event.name);
                 }
             };
+
             return Stream.of(listener);
         }
     }
