@@ -1,4 +1,4 @@
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
 
 repositories {
 	mavenCentral()
@@ -20,36 +20,14 @@ artifacts {
 }
 
 ext {
-	acaraUrl = project.hasProperty('acaraUrl') ? acaraUrl : ''
-	acaraUsername = project.hasProperty('acaraUsername') ? acaraUsername : ''
-	acaraPassword = project.hasProperty('acaraPassword') ? acaraPassword : ''
+	bintrayUser = project.hasProperty('bintrayUser') ? bintrayUser : ''
+	bintrayKey = project.hasProperty('bintrayKey') ? bintrayKey : ''
 }
 
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-
-			artifact sourcesJar {
-				classifier "sources"
-			}
-
-			artifact javadocJar {
-				classifier "javadoc"
-			}
-
-			artifactId = "acara-${project.name}"
-		}
-	}
-
-	repositories {
-		maven {
-			url acaraUrl
-			credentials {
-				username = acaraUsername
-				password = acaraPassword
-			}
-		}
-	}
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "https://api.bintray.com/maven/blackrush/maven/acara") {
+            authentication(userName: bintrayUser, password: bintrayKey)
+        }
+    }
 }
-
