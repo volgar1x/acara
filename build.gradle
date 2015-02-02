@@ -1,26 +1,24 @@
 allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply from: rootProject.file('gradle/publish.gradle')
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
     version = '2.0-SNAPSHOT'
     group = 'com.github.blackrush.acara'
 
     ext {
         fungsiVersion = '1.2.+'
-        jacocoVersion = '0.7.2.201409121644'
     }
-}
-
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'idea'
-	apply from: rootProject.file('gradle/publish.gradle')
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
 
     dependencies {
         testCompile 'junit:junit:4.11'
         testCompile 'org.mockito:mockito-core:1.9.5'
     }
 }
+
+apply from: rootProject.file('gradle/jacoco.gradle')
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.12'

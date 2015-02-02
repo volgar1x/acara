@@ -1,0 +1,49 @@
+buildscript {
+    repositories { mavenCentral() }
+
+    dependencies {
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:1.0.2'
+    }
+}
+
+allprojects {
+    apply plugin: 'jacoco'
+
+    jacoco {
+        toolVersion = '0.7.2.201409121644'
+    }
+}
+
+apply plugin: org.kt3k.gradle.plugin.CoverallsPlugin
+
+task jacocoReport(type: JacocoReport) {
+    dependsOn = subprojects*.test
+    additionalSourceDirs = files(subprojects*.sourceSets*.main*.allSource*.srcDirs)
+    sourceDirectories = files(subprojects*.sourceSets*.main*.allSource*.srcDirs)
+    classDirectories = files(subprojects*.sourceSets*.main*.output)
+    executionData = files(subprojects*.jacocoTestReport*.executionData)
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
+    onlyIf = Specs.satisfyAll()
+    doFirst {
+        executionData = files(executionData.findAll {
+            it.exists()
+        })
+    }
+}
+
+coveralls {
+    sourceDirs = subprojects*.sourceSets*.main*.allSource*.srcDirs*.flatten()
+    jacocoReportPath = "$buildDir/reports/jacoco/jacocoReport/jacocoRootReport.xml"
+}
+
+tasks.coveralls {
+    group = 'Coverage reports'
+    description = 'Uploads the aggregated coverage report to Coveralls'
+
+    dependsOn jacocoReport
+    onlyIf { System.env.'CI' }
+}

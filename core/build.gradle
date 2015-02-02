@@ -3,7 +3,3 @@ apply plugin: 'jacoco'
 dependencies {
     compile project(':api')
 }
-
-jacoco {
-    toolVersion = jacocoVersion
-}
