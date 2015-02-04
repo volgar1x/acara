@@ -29,3 +29,13 @@ apply from: rootProject.file('gradle/jacoco.gradle')
 task wrapper(type: Wrapper) {
     gradleVersion = '2.1'
 }
+
+task docs(type: Javadoc) {
+    source subprojects.collect { it.sourceSets.main.allJava }
+    classpath = files(subprojects.collect { it.sourceSets.main.compileClasspath })
+    destinationDir = file("${buildDir}/docs/javadoc")
+    options {
+        links "http://docs.oracle.com/javase/8/docs/api/"
+        links "http://blackrush.github.io/fungsi/1.2/"
+    }
+}
