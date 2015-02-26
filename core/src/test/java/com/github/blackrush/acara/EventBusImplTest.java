@@ -41,11 +41,11 @@ public class EventBusImplTest {
 
         Listener listener1 = mock(Listener.class);
         when(listener1.getHandledEvent()).thenReturn(meta1);
-        when(listener1.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+        when(listener1.dispatch(any(), any(), any())).thenReturn(Futures.success(new Object()));
 
         Listener listener2 = mock(Listener.class);
         when(listener2.getHandledEvent()).thenReturn(meta2);
-        when(listener2.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+        when(listener2.dispatch(any(), any(), any())).thenReturn(Futures.success(new Object()));
 
         when(listenerBuilder.build(object)).thenReturn(Stream.of(listener1, listener2));
 
@@ -81,15 +81,15 @@ public class EventBusImplTest {
 
         Listener listener1 = mock(Listener.class);
         when(listener1.getHandledEvent()).thenReturn(meta1);
-        when(listener1.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+        when(listener1.dispatch(any(), any(), any())).thenReturn(Futures.success(new Object()));
 
         Listener listener2 = mock(Listener.class);
         when(listener2.getHandledEvent()).thenReturn(meta2);
-        when(listener2.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+        when(listener2.dispatch(any(), any(), any())).thenReturn(Futures.success(new Object()));
 
         Listener listener3 = mock(Listener.class);
         when(listener3.getHandledEvent()).thenReturn(meta3);
-        when(listener3.dispatch(any(), any())).thenReturn(Futures.success(new Object()));
+        when(listener3.dispatch(any(), any(), any())).thenReturn(Futures.success(new Object()));
 
         when(listenerBuilder.build(object)).thenReturn(Stream.of(listener1, listener2));
         when(listenerBuilder.build(object2)).thenReturn(Stream.of(listener1));
@@ -125,11 +125,11 @@ public class EventBusImplTest {
 
         Listener lParent = mock(Listener.class), lChild = mock(Listener.class);
         when(lParent.getHandledEvent()).thenReturn(parent);
-        when(lParent.dispatch(eq("parent"), any())).thenReturn(Futures.success(new Object()));
-        when(lParent.dispatch(eq("child"), any())).thenReturn(Futures.success(new Object()));
+        when(lParent.dispatch(any(), eq("parent"), any())).thenReturn(Futures.success(new Object()));
+        when(lParent.dispatch(any(), eq("child"), any())).thenReturn(Futures.success(new Object()));
 
         when(lChild.getHandledEvent()).thenReturn(child);
-        when(lChild.dispatch(eq("child"), any())).thenReturn(Futures.success(new Object()));
+        when(lChild.dispatch(any(), eq("child"), any())).thenReturn(Futures.success(new Object()));
 
         when(listenerBuilder.build(state1)).thenReturn(Stream.of(lParent, lChild));
         when(listenerBuilder.build(state2)).thenReturn(Stream.of(lParent));
@@ -141,9 +141,9 @@ public class EventBusImplTest {
         sub1.revoke();
         sub2.revoke();
 
-        verify(lParent, times(2)).dispatch(eq("parent"), any());
-        verify(lParent, times(1)).dispatch(eq("child"), any());
-        verify(lChild, times(1)).dispatch(eq("child"), any());
+        verify(lParent, times(2)).dispatch(any(), eq("parent"), any());
+        verify(lParent, times(1)).dispatch(any(), eq("child"), any());
+        verify(lChild, times(1)).dispatch(any(), eq("child"), any());
 
         assertEquals("first number of responses", 2, responses1.size());
         assertEquals("second number of responses", 2, responses2.size());

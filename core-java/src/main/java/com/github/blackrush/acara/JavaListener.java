@@ -9,12 +9,10 @@ import java.lang.reflect.Method;
 
 public class JavaListener<T> extends Listener {
     final TypedEventMetadata<T> signature;
-    final Object state;
     final Method behavior;
 
-    public JavaListener(TypedEventMetadata<T> signature, Object state, Method behavior) {
+    public JavaListener(TypedEventMetadata<T> signature, Method behavior) {
         this.signature = signature;
-        this.state = state;
         this.behavior = behavior;
     }
 
@@ -28,14 +26,12 @@ public class JavaListener<T> extends Listener {
     }
 
     @Override
-    public Future<Object> dispatch(Object event, Worker worker) {
+    public Future<Object> dispatch(Object state, Object event, Worker worker) {
         @SuppressWarnings("deprecation")
         T evt = signature.cast(event);
 
-        //return worker.submit(() -> this.invoke(state, behavior, evt));
-
         return worker.execute(() -> {
-            Object res = this.invoke(state, behavior, evt);
+            Object res = this.invoke(state, this.behavior, evt);
 
             if (res == null) {
                 // also applies to methods returning void
@@ -43,8 +39,9 @@ public class JavaListener<T> extends Listener {
             }
 
             if (res instanceof Future<?>) {
-                //noinspection unchecked,RedundantCast
-                return (Future<Object>) res;
+                @SuppressWarnings("unchecked")
+                Future<Object> fut = (Future<Object>) res;
+                return fut;
             }
 
             return Futures.success(res);

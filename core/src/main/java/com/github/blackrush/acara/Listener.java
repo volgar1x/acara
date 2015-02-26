@@ -12,9 +12,11 @@ public abstract class Listener {
 
     /**
      * Immediately dispatch an event.
+     *
+     * @param state a non-null state
      * @param event a non-null event
      * @param worker a non-null worker
      * @return the pending response
      */
-    public abstract Future<Object> dispatch(Object event, Worker worker);
+    public abstract Future<Object> dispatch(Object state, Object event, Worker worker);
 }

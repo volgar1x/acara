@@ -39,7 +39,7 @@ public class JavaEventBus {
             }
             JavaEventMetadata<FunkyEvent> meta = new JavaEventMetadata<>(FunkyEvent.class);
 
-            JavaListener<FunkyEvent> listener = new JavaListener<FunkyEvent>(meta, o, method) {
+            JavaListener<FunkyEvent> listener = new JavaListener<FunkyEvent>(meta, method) {
                 @Override
                 protected Object invoke(Object state, Method behavior, FunkyEvent event) throws Throwable {
                     return behavior.invoke(state, event.name);

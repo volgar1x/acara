@@ -57,7 +57,7 @@ final class EventBusImpl implements EventBus {
         listeners.forEach((sub, listeners) -> {
             Listener listener = lookupListener(meta, listeners);
             if (listener != null) {
-                Future<Object> result = listener.dispatch(event, worker);
+                Future<Object> result = listener.dispatch(sub, event, worker);
                 results.add(result);
             }
         });
