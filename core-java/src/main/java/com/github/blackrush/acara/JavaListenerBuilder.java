@@ -16,10 +16,10 @@ public class JavaListenerBuilder implements ListenerBuilder {
             klass = klass.getSuperclass();
         }
 
-        return methods.stream().flatMap(m -> this.scan(o, m));
+        return methods.stream().flatMap(this::scan);
     }
 
-    protected Stream<Listener> scan(Object o, Method method) {
+    protected Stream<Listener> scan(Method method) {
         if (!method.isAnnotationPresent(Listen.class)) {
             return Stream.empty();
         }

@@ -33,7 +33,7 @@ public class JavaEventBus {
 
     static class FunkyListenerBuilder extends JavaListenerBuilder {
         @Override
-        protected Stream<Listener> scan(Object o, Method method) {
+        protected Stream<Listener> scan(Method method) {
             if (!method.isAnnotationPresent(Funky.class)) {
                 return Stream.empty();
             }
