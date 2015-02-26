@@ -17,14 +17,20 @@ public class JavaListener<T> extends Listener {
     }
 
     @Override
-    public EventMetadata getHandledEvent() {
+    public TypedEventMetadata<T> getHandledEvent() {
         return signature;
     }
 
-    @SuppressWarnings("deprecation")
+    public Method getBehavior() {
+        return behavior;
+    }
+
     @Override
     public Future<Object> dispatch(Object event, Worker worker) {
-        return worker.submit(() -> this.invoke(state, behavior, signature.cast(event)));
+        @SuppressWarnings("deprecation")
+        T evt = signature.cast(event);
+
+        return worker.submit(() -> this.invoke(state, behavior, evt));
     }
 
     protected Object invoke(Object state, Method behavior, T event) throws Throwable {

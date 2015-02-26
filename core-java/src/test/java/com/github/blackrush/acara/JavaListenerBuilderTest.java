@@ -33,11 +33,14 @@ public class JavaListenerBuilderTest {
 
         // when
         List<Listener> listeners = builder.build(the).collect(Collectors.toList());
+        JavaListener<?> first = (JavaListener<?>) listeners.get(0);
 
         // then
         assertEquals("number of listeners", 1, listeners.size());
 
         assertEquals("listener's handled event", new JavaEventMetadata<>(TheEvent.class),
                                                     listeners.get(0).getHandledEvent());
+
+        assertEquals("listener's method", first.getBehavior(), TheListener.class.getMethod("listen", TheEvent.class));
     }
 }
