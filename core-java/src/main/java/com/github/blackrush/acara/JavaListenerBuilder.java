@@ -9,11 +9,14 @@ import java.util.stream.Stream;
 public class JavaListenerBuilder implements ListenerBuilder {
     @Override
     public final Stream<Listener> build(Object o) {
-        List<Method> methods = new LinkedList<>();
         Class<?> klass = o.getClass();
-        while (klass != Object.class) {
-            Collections.addAll(methods, klass.getDeclaredMethods());
-            klass = klass.getSuperclass();
+        return scanAll(klass);
+    }
+
+    private Stream<Listener> scanAll(Class<?> klass) {
+        List<Method> methods = new LinkedList<>();
+        for (Class<?> it = klass; it != Object.class; it = it.getSuperclass()) {
+            Collections.addAll(methods, it.getDeclaredMethods());
         }
 
         return methods.stream().flatMap(this::scan);
