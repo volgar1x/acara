@@ -1,6 +1,8 @@
 package com.github.blackrush.acara;
 
+import org.fungsi.Unit;
 import org.fungsi.concurrent.Future;
+import org.fungsi.concurrent.Futures;
 import org.fungsi.concurrent.Worker;
 
 import java.lang.reflect.Method;
@@ -30,7 +32,23 @@ public class JavaListener<T> extends Listener {
         @SuppressWarnings("deprecation")
         T evt = signature.cast(event);
 
-        return worker.submit(() -> this.invoke(state, behavior, evt));
+        //return worker.submit(() -> this.invoke(state, behavior, evt));
+
+        return worker.execute(() -> {
+            Object res = this.invoke(state, behavior, evt);
+
+            if (res == null) {
+                // also applies to methods returning void
+                return Futures.success(Unit.instance());
+            }
+
+            if (res instanceof Future<?>) {
+                //noinspection unchecked,RedundantCast
+                return (Future<Object>) res;
+            }
+
+            return Futures.success(res);
+        });
     }
 
     protected Object invoke(Object state, Method behavior, T event) throws Throwable {

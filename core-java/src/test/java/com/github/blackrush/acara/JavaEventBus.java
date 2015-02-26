@@ -1,6 +1,9 @@
 package com.github.blackrush.acara;
 
 import com.google.common.util.concurrent.MoreExecutors;
+import org.fungsi.Unit;
+import org.fungsi.concurrent.Future;
+import org.fungsi.concurrent.Futures;
 import org.fungsi.concurrent.Workers;
 import org.junit.Test;
 
@@ -17,6 +20,9 @@ public class JavaEventBus {
         final String name;
         TheEvent(String name) { this.name = name; }
     }
+
+    static enum UnwrapFutureEvent { instance }
+    static enum VoidListenerEvent { instance }
 
     static class FunkyEvent extends TheEvent {
         FunkyEvent(String name) { super(name); }
@@ -54,6 +60,14 @@ public class JavaEventBus {
         public String funky(String name) {
             return String.format("Wassup %s?", name);
         }
+
+        @Listen
+        public Future<String> unwrapFuture(UnwrapFutureEvent evt) {
+            return Futures.success("foobar");
+        }
+
+        @Listen
+        public void voidListener(VoidListenerEvent evt) {}
     }
 
     @Test
@@ -67,10 +81,14 @@ public class JavaEventBus {
         Subscription sub = eventBus.subscribe(new TheListener());
         String msg1 = (String) eventBus.publish(new TheEvent("World")).get().get(0);
         String msg2 = (String) eventBus.publish(new FunkyEvent("dawg")).get().get(0);
+        String msg3 = (String) eventBus.publish(UnwrapFutureEvent.instance).get().get(0);
+        Unit msg4 = (Unit) eventBus.publish(VoidListenerEvent.instance).get().get(0);
         sub.revoke();
 
         assertEquals("first message", "Hello, World!", msg1);
         assertEquals("second message", "Wassup dawg?", msg2);
+        assertEquals("third message", "foobar", msg3);
+        assertEquals("fourth message", Unit.instance(), msg4);
     }
 
 }
