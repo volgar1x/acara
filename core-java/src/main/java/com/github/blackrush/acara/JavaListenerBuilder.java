@@ -1,16 +1,22 @@
 package com.github.blackrush.acara;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JavaListenerBuilder implements ListenerBuilder {
+    private Map<Class<?>, Collection<Listener>> cache = new ConcurrentHashMap<>();
+
     @Override
     public final Stream<Listener> build(Object o) {
         Class<?> klass = o.getClass();
-        return scanAll(klass);
+        return cache.computeIfAbsent(klass, this::cache).stream();
+    }
+
+    private Collection<Listener> cache(Class<?> klass) {
+        return scanAll(klass).collect(Collectors.toList());
     }
 
     private Stream<Listener> scanAll(Class<?> klass) {
