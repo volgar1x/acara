@@ -7,15 +7,20 @@ public final class JavaEventMetadata<T> extends TypedEventMetadata<T> {
         this.klass = klass;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public JavaEventMetadata<? super T> getParent() {
-        Class<? super T> superclass = klass.getSuperclass();
-
-        if (superclass == Object.class) {
-            return null;
+        Class<?>[] interfaces = klass.getInterfaces();
+        if (interfaces.length > 0) {
+            return new JavaEventMetadata(interfaces[0]);
         }
 
-        return new JavaEventMetadata<>(superclass);
+        Class<? super T> superclass = klass.getSuperclass();
+        if (superclass != Object.class) {
+            return new JavaEventMetadata<>(superclass);
+        }
+
+        return null;
     }
 
     @Override
